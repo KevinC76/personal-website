@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Fonts */
+  --font-headline: var(--font-newsreader), serif;
+  --font-body: var(--font-public-sans), sans-serif;
+  --font-label: var(--font-work-sans), sans-serif;
+
+  /* Colors — ink on newsprint palette */
+  --color-primary: #000000;
+  --color-on-primary: #e2e2e2;
+  --color-primary-container: #3b3b3b;
+  --color-surface: #fcf9f2;
+  --color-surface-dim: #dcdad3;
+  --color-surface-bright: #fcf9f2;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ec;
+  --color-surface-container: #f1eee7;
+  --color-surface-container-high: #ebe8e1;
+  --color-surface-container-highest: #e5e2db;
+  --color-on-surface: #1c1c18;
+  --color-on-surface-variant: #474747;
+  --color-outline: #777777;
+  --color-outline-variant: #c6c6c6;
+  --color-secondary: #5f5e5e;
+  --color-secondary-container: #d6d4d3;
+  --color-secondary-fixed: #c8c6c6;
+  --color-secondary-fixed-dim: #acabaa;
+  --color-on-secondary: #ffffff;
+  --color-tertiary: #3b3b3b;
+  --color-inverse-surface: #31312c;
+  --color-inverse-on-surface: #f3f0e9;
+  --color-error: #ba1a1a;
+  --color-background: #fcf9f2;
+  --color-on-background: #1c1c18;
+
+  /* No border radius — editorial sharp corners */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-full: 9999px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Paper grain texture */
+body {
+  background-color: #fcf9f2;
+  color: #1c1c18;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cfilter id='noise' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+::selection {
+  background-color: #000000;
+  color: #e2e2e2;
+}
+
+/* Editorial multi-column text */
+.editorial-columns {
+  column-count: 1;
+  column-gap: 2rem;
+}
+@media (min-width: 768px) {
+  .editorial-columns {
+    column-count: 2;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Dotted baseline input — "fill in the blank" aesthetic */
+.dotted-input {
+  background-image: linear-gradient(
+    to right,
+    black 33%,
+    rgba(255, 255, 255, 0) 0%
+  );
+  background-position: bottom;
+  background-size: 3px 1px;
+  background-repeat: repeat-x;
+  border: none;
+  outline: none;
+}
+
+/* Letter card depth without shadow */
+.correspondence-card {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 -2px #fcf9f2,
+    0 4px 0 -1px rgba(0, 0, 0, 0.1);
 }
