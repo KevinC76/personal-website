@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
+import { withBasePath } from "@/lib/assetPath";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -194,7 +195,7 @@ export default function AboutClient() {
             className="lg:col-span-5 relative aspect-[3/4] bg-[#e5e2db] overflow-hidden"
           >
             <Image
-              src="/hero.jpeg"
+              src={withBasePath("/hero-optimized.jpg")}
               alt="Kevin Chiputra"
               fill
               className="object-cover grayscale"

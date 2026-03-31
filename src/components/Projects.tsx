@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { projects } from "@/lib/projects";
+import { withBasePath } from "@/lib/assetPath";
 
 export default function Projects() {
   const featured = projects[0];
@@ -47,7 +48,7 @@ export default function Projects() {
           {/* Image */}
           <div className="lg:col-span-7 relative aspect-video overflow-hidden bg-[#1a1a1a]">
             <Image
-              src={featured.image}
+              src={withBasePath(featured.image)}
               alt={featured.imageAlt}
               fill
               className="object-cover"

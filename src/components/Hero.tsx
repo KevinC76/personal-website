@@ -3,6 +3,7 @@
 import { motion, type Variants, type Easing } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { withBasePath } from "@/lib/assetPath";
 
 const easeOut: Easing = "easeOut";
 
@@ -136,7 +137,7 @@ export default function Hero() {
             className="relative w-full aspect-[4/3] lg:flex-grow bg-[#e5e2db] overflow-hidden"
           >
             <Image
-              src="/hero.jpeg"
+              src={withBasePath("/hero-optimized.jpg")}
               alt="Kevin Chiputra"
               fill
               className="object-cover grayscale"

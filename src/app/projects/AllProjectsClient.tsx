@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { projects } from "@/lib/projects";
 import Footer from "@/components/Footer";
+import { withBasePath } from "@/lib/assetPath";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -116,7 +117,7 @@ export default function AllProjectsClient() {
                   }`}
                 >
                   <Image
-                    src={project.image}
+                    src={withBasePath(project.image)}
                     alt={project.imageAlt}
                     fill
                     className="object-cover"

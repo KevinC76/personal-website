@@ -35,7 +35,7 @@ export const projects: Project[] = [
     quoteAttribution: "— Kevin Chiputra, on designing this site",
     outcome:
       "A fully static, zero-runtime-dependency portfolio shipping at 100 Lighthouse performance on mobile.",
-    image: "/project/Project1.png",
+    image: "/project/Project1-optimized.jpg",
     imageAlt: "The Portfolio Gazette — personal website screenshot",
     imageLeft: true,
   },
