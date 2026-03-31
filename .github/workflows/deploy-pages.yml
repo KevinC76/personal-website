@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Use the repo path for Pages (set "" if you later use a custom domain).
+      PAGES_BASE_PATH: /personal-website
     steps:
       - name: Checkout
         uses: actions/checkout@v4
