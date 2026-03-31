@@ -38,7 +38,7 @@ export default function AllProjectsClient() {
           </Link>
 
           <div className="font-headline font-black uppercase tracking-tighter text-black border-b-4 border-black mb-1 text-xl md:text-3xl text-center">
-            THE PORTFOLIO GAZETTE
+            Kevin Chiputra Newspaper
           </div>
 
           <div className="hidden md:block font-label text-[10px] tracking-[0.3em] uppercase opacity-60 text-right">
@@ -183,7 +183,7 @@ export default function AllProjectsClient() {
             Return to Front Page
           </Link>
           <span className="font-label text-[9px] uppercase tracking-[0.3em] opacity-30">
-            The Portfolio Gazette
+            Kevin Chiputra Newspaper
           </span>
         </div>
       </div>

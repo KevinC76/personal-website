@@ -26,12 +26,12 @@ const workSans = Work_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "The Portfolio Gazette",
+  title: "Kevin Chiputra",
   description:
     "A personal portfolio in newspaper editorial style — design and development at the intersection of aesthetic rigor and technical precision.",
   keywords: ["portfolio", "web developer", "designer", "Next.js", "React"],
   openGraph: {
-    title: "The Portfolio Gazette",
+    title: "Kevin Chiputra",
     description: "A modern chronicle of design and development.",
     type: "website",
   },

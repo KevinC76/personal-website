@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "All fields are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
       console.error("Missing GMAIL_USER or GMAIL_APP_PASSWORD in .env.local");
       return NextResponse.json(
         { error: "Email service not configured." },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -34,16 +34,16 @@ export async function POST(req: NextRequest) {
     });
 
     await transporter.sendMail({
-      from: `"The Portfolio Gazette" <${user}>`,
+      from: `"Kevin Chiputra Newspaper" <${user}>`,
       to: "chiputrakevin@gmail.com",
       replyTo: email,
       subject: "Email from Personal Website",
-      text: `New message from The Portfolio Gazette contact form.\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      text: `New message from Kevin Chiputra Newspaper contact form.\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
       html: `
         <div style="font-family:'Georgia',serif;max-width:600px;margin:0 auto;padding:32px;background:#fcf9f2;border:1px solid #e5e2db;">
           <div style="border-bottom:3px solid #000;padding-bottom:16px;margin-bottom:24px;">
             <p style="font-family:'Courier New',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.3em;color:#777;margin:0 0 8px;">
-              The Portfolio Gazette — Incoming Correspondence
+              Kevin Chiputra Newspaper — Incoming Correspondence
             </p>
             <h1 style="font-size:28px;font-weight:900;margin:0;letter-spacing:-0.02em;">
               Letters to the Editor
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
 
           <div style="border-top:1px solid #e5e2db;padding-top:16px;">
             <p style="font-family:'Courier New',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;color:#aaa;margin:0;">
-              © ${new Date().getFullYear()} Kevin Chiputra — The Portfolio Gazette
+              © ${new Date().getFullYear()} Kevin Chiputra — Kevin Chiputra Newspaper
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     console.error("Contact form error:", err);
     return NextResponse.json(
       { error: "Failed to send message. Please try again." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
