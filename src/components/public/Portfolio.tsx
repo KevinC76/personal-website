@@ -75,7 +75,10 @@ function Masthead({
   page: PageKey;
 }) {
   return (
-    <header className="site-width pt-6 border-b-[3px] border-black">
+    <header
+      className="site-width pt-6 border-b-[3px] border-black"
+      data-newspaper-title={content.brand.name}
+    >
       <div className="flex items-center justify-between gap-6 mb-5">
         <span className="eyebrow hidden xl:block">{content.brand.edition}</span>
         <Link
