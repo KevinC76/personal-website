@@ -14,6 +14,7 @@ type Props = {
   content: PortfolioContent;
   page: PageKey;
   previewSources?: Record<string, string>;
+  revision?: number;
 };
 function imageUrl(asset: MediaAsset) {
   return asset.path.startsWith("/")
@@ -465,14 +466,19 @@ function Projects({ content: c, previewSources }: Omit<Props, "page">) {
     </section>
   );
 }
-export default function Portfolio({ content, page, previewSources }: Props) {
+export default function Portfolio({
+  content,
+  page,
+  previewSources,
+  revision,
+}: Props) {
   return (
     <>
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
       <Masthead content={content} page={page} />
-      <main id="main-content">
+      <main id="main-content" data-content-revision={revision}>
         {page === "home" ? (
           <Home content={content} previewSources={previewSources} />
         ) : page === "about" ? (

@@ -3,7 +3,7 @@ import { getPublished } from "@/lib/content/public";
 import { pageMetadata, structuredData } from "@/lib/content/metadata";
 export const generateMetadata = () => pageMetadata("projects");
 export default async function Page() {
-  const { document } = await getPublished();
+  const { document, revision } = await getPublished();
   return (
     <>
       <script
@@ -12,7 +12,7 @@ export default async function Page() {
           __html: structuredData(document, "projects"),
         }}
       />
-      <Portfolio content={document} page="projects" />
+      <Portfolio revision={revision} content={document} page="projects" />
     </>
   );
 }

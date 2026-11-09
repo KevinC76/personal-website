@@ -122,6 +122,7 @@ export async function publishDraft(revision: number) {
     // Publication has committed. If invalidation fails, report the commit accurately.
     try {
       updateTag(CONTENT_TAG);
+      revalidatePath("/", "layout");
       for (const path of [
         "/",
         "/about",

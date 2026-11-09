@@ -96,6 +96,10 @@ test("robots sitemap and contact validation", async ({ request }) => {
   });
   expect(invalid.status()).toBe(400);
   const trapped = await request.post("/api/contact", {
+    headers: {
+      origin: new URL(process.env.TEST_BASE_URL ?? "http://localhost:3000")
+        .origin,
+    },
     data: {
       name: "Test",
       email: "test@example.com",

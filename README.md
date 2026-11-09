@@ -53,6 +53,7 @@ Setelah deployment produksi lolos smoke test, jalankan workflow **Redirect legac
 - **Preview saved draft** membuka preview privat. Pilih Home, About, atau Projects pada toolbar preview. Navigasi biasa menuju versi publik. Pengiriman email dinonaktifkan dalam preview.
 - **Publish edition** menerbitkan keseluruhan draft yang tersimpan. Gambar yang digunakan disalin ke bucket publik terlebih dahulu, lalu snapshot diterbitkan dalam satu transaksi database. Kegagalan tidak mengganti snapshot publik. Berkas yang sudah disalin saat percobaan publish dapat tetap berada di bucket publik sampai dibersihkan; jangan gunakan CMS sebagai penyimpanan rahasia.
 - Setelah commit publish, cache konten, metadata, sitemap dan gambar OG diinvalidasi. Revalidasi berkala setiap satu jam menjadi cadangan. Cache yang ada dapat tetap melayani konten saat revalidasi gagal; cold cache dan proyek Supabase yang dijeda tidak dijamin tersedia.
+- Sitemap dijalankan melalui runtime agar tidak tertahan sebagai artefak statis deployment, dengan sumber data published yang tetap di-cache satu jam. Muat ulang editor setelah deployment aplikasi baru.
 - Unggahan JPEG/PNG/WebP maksimal 5 MB masuk langsung ke bucket privat. Server memeriksa isi, menghapus metadata, membatasi dimensi, dan menghasilkan WebP maksimal lebar 1.600 px. SVG dan gambar animasi ditolak.
 - Hapus referensi media dari draft, simpan dan publish, lalu gunakan **Delete file**. Database menolak penghapusan aset yang masih direferensikan draft atau published. File bersifat immutable; mengganti gambar membuat ID baru.
 - SMTP mengirim pesan ke alamat owner yang tetap, bukan penerima yang dapat diberikan oleh pengirim formulir. Konten email di-escape dan panjang input dibatasi. Honeypot bukan pengganti proteksi spam; gunakan aturan firewall Vercel jika trafik spam muncul.
@@ -76,7 +77,7 @@ Unit test memakai PostgreSQL PGlite dengan role dan RLS nyata untuk memeriksa ke
 
 ## Pemulihan dan pemeliharaan
 
-- Supabase Free menyediakan database 500 MB dan Storage 1 GB; proyek bisa dijeda setelah seminggu tidak aktif. Resume melalui dashboard sebelum mengakses CMS atau melakukan deploy baru. Tidak ada keep-alive buatan.
+- Supabase Free menyediakan database 500 MB dan Storage 1 GB; proyek bisa dijeda setelah seminggu tidak aktif ([ketentuan Free](https://supabase.com/pricing)). Resume melalui dashboard sebelum mengakses CMS atau melakukan deploy baru. Tidak ada keep-alive buatan.
 - Sebelum perubahan database, ekspor snapshot dan simpan media melalui dashboard/CLI di lokasi backup privat. Seed tidak berfungsi sebagai backup konten hasil edit.
 - Rollback UI melalui deployment Vercel sebelumnya yang kompatibel dengan `schemaVersion: 1`. Mengembalikan konten dilakukan dengan backup snapshot melalui SQL Editor oleh owner, lalu invalidasi cache dengan publish ulang.
 - Untuk mencabut akses CMS, hapus baris owner dari `portfolio_admins` melalui SQL Editor dan cabut sesi Auth. RLS akan menolak akses walaupun browser masih menyimpan token. Jangan menghapus user aktif sebelum menyimpan backup.
