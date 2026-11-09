@@ -1,0 +1,134 @@
+{
+  "measured": "2026-11-09",
+  "lighthouse": "13.6.0",
+  "groups": {
+    "baseline": {
+      "runs": [
+        {
+          "performance": 75,
+          "seo": 100,
+          "lcpMs": 14631.326500000001,
+          "cls": 0,
+          "tbtMs": 0
+        },
+        {
+          "performance": 75,
+          "seo": 100,
+          "lcpMs": 14329.784300000003,
+          "cls": 0,
+          "tbtMs": 0
+        },
+        {
+          "performance": 75,
+          "seo": 100,
+          "lcpMs": 14330.1152,
+          "cls": 0,
+          "tbtMs": 0
+        }
+      ],
+      "median": {
+        "performance": 75,
+        "seo": 100,
+        "lcpMs": 14330.1152,
+        "cls": 0,
+        "tbtMs": 0
+      }
+    },
+    "local": {
+      "runs": [
+        {
+          "performance": 94,
+          "seo": 100,
+          "lcpMs": 3074.33035,
+          "cls": 0.001013239273755292,
+          "tbtMs": 7
+        },
+        {
+          "performance": 94,
+          "seo": 100,
+          "lcpMs": 3087.9949500000002,
+          "cls": 0.001013239273755292,
+          "tbtMs": 11
+        },
+        {
+          "performance": 94,
+          "seo": 100,
+          "lcpMs": 3066.7900499999996,
+          "cls": 0.001013239273755292,
+          "tbtMs": 3.5
+        }
+      ],
+      "median": {
+        "performance": 94,
+        "seo": 100,
+        "lcpMs": 3074.33035,
+        "cls": 0.001013239273755292,
+        "tbtMs": 7
+      }
+    },
+    "production": {
+      "runs": [
+        {
+          "performance": 97,
+          "seo": 100,
+          "lcpMs": 2514.996,
+          "cls": 0,
+          "tbtMs": 18
+        },
+        {
+          "performance": 100,
+          "seo": 100,
+          "lcpMs": 1685.146,
+          "cls": 0,
+          "tbtMs": 7.5
+        },
+        {
+          "performance": 100,
+          "seo": 100,
+          "lcpMs": 1384.338,
+          "cls": 0.05703026722364647,
+          "tbtMs": 12
+        }
+      ],
+      "median": {
+        "performance": 100,
+        "seo": 100,
+        "lcpMs": 1685.146,
+        "cls": 0,
+        "tbtMs": 12
+      }
+    }
+  },
+  "interaction": {
+    "activeAnimations": 0,
+    "idleTaskMs": 0.73,
+    "interactionEvents": [
+      {
+        "name": "keydown",
+        "duration": 64
+      },
+      {
+        "name": "keypress",
+        "duration": 64
+      },
+      {
+        "name": "keyup",
+        "duration": 64
+      },
+      {
+        "name": "pointerdown",
+        "duration": 56
+      },
+      {
+        "name": "pointerup",
+        "duration": 56
+      },
+      {
+        "name": "click",
+        "duration": 56
+      }
+    ],
+    "cmsBundleLoaded": false,
+    "scriptCount": 9
+  }
+}

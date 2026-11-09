@@ -1,28 +1,39 @@
 import type { NextConfig } from "next";
-
-const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
-const repositoryName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
-const pagesBasePath = process.env.PAGES_BASE_PATH?.trim();
-const basePath =
-  isGitHubPagesBuild
-    ? pagesBasePath || (repositoryName ? `/${repositoryName}` : "")
-    : "";
-
-const nextConfig: NextConfig = {
-  output: "export",
-  trailingSlash: true,
-  env: {
-    NEXT_PUBLIC_BASE_PATH: basePath,
-  },
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const config: NextConfig = {
   images: {
-    unoptimized: true,
+    remotePatterns: supabaseUrl
+      ? [
+          {
+            protocol: "https",
+            hostname: new URL(supabaseUrl).hostname,
+            pathname: "/storage/v1/object/public/portfolio-public/**",
+            search: "",
+          },
+        ]
+      : [],
+    formats: ["image/webp"],
+    qualities: [65],
   },
-  ...(basePath
-    ? {
-        basePath,
-        assetPrefix: basePath,
-      }
-    : {}),
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
+      ...(process.env.VERCEL_ENV === "preview"
+        ? [
+            {
+              source: "/:path*",
+              headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+            },
+          ]
+        : []),
+    ];
+  },
 };
-
-export default nextConfig;
+export default config;

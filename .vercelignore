@@ -1,0 +1,9 @@
+.git
+.env*
+artifacts
+test-results
+playwright-report
+out
+redirect-out
+public/hero.jpeg
+public/project/Project1.png
