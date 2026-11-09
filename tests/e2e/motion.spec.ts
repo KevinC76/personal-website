@@ -103,6 +103,15 @@ test("newspaper opens once, turns on navigation/history, then releases its layer
   await nav(page, "Home").click();
   await expect.poll(async () => (await events(page)).length).toBeGreaterThan(0);
   expect((await events(page)).some((e) => e.motion === "opening")).toBe(false);
+  if (isMobile) {
+    await page.setViewportSize({ width: 1100, height: 500 });
+    const count = (await events(page)).length;
+    await nav(page, "About").click();
+    await expect
+      .poll(async () => (await events(page)).length)
+      .toBeGreaterThan(count);
+    expect((await events(page)).at(-1)?.name).toContain("flat");
+  }
 });
 
 test("reduced motion skips the opening and all page turns", async ({

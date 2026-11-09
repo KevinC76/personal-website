@@ -381,7 +381,7 @@ button {
     opacity: 0.18;
   }
 }
-@media (max-width: 767px) {
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) {
   .paper-scene {
     perspective: none;
   }
