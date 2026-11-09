@@ -1,58 +1,62 @@
 import type { Metadata } from "next";
-import { Newsreader, Public_Sans, Work_Sans } from "next/font/google";
+import { Public_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-import AnimatedLayout from "@/components/AnimatedLayout";
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
+import { siteUrl } from "@/lib/config";
+const newsreader = localFont({
+  src: [
+    {
+      path: "./fonts/newsreader-latin-400-italic.woff2",
+      weight: "400",
+      style: "italic",
+    },
+    {
+      path: "./fonts/newsreader-latin-800-normal.woff2",
+      weight: "700 900",
+      style: "normal",
+    },
+  ],
   variable: "--font-newsreader",
-  style: ["normal", "italic"],
-  weight: ["400", "700", "800"],
+  adjustFontFallback: "Times New Roman",
   display: "swap",
 });
-
+const newsreaderDisplay = localFont({
+  src: "./fonts/newsreader-latin-800-italic.woff2",
+  variable: "--font-newsreader-display",
+  weight: "800",
+  style: "italic",
+  preload: false,
+  adjustFontFallback: "Times New Roman",
+  display: "swap",
+});
 const publicSans = Public_Sans({
   subsets: ["latin"],
   variable: "--font-public-sans",
-  weight: ["300", "400", "700"],
   display: "swap",
 });
-
-const workSans = Work_Sans({
-  subsets: ["latin"],
+const workSans = localFont({
+  src: "./fonts/work-sans-latin-400-normal.woff2",
   variable: "--font-work-sans",
-  weight: ["400", "600"],
+  preload: false,
+  weight: "400",
   display: "swap",
 });
-
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: "Kevin Chiputra",
-  description:
-    "A personal portfolio in newspaper editorial style — design and development at the intersection of aesthetic rigor and technical precision.",
-  keywords: ["portfolio", "web developer", "designer", "Next.js", "React"],
-  openGraph: {
-    title: "Kevin Chiputra",
-    description: "A modern chronicle of design and development.",
-    type: "website",
-  },
+  description: "The personal portfolio of Kevin Chiputra.",
 };
-
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html
       lang="en"
-      suppressHydrationWarning
-      className={`${newsreader.variable} ${publicSans.variable} ${workSans.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${newsreaderDisplay.variable} ${publicSans.variable} ${workSans.variable} antialiased`}
     >
-      {/* suppressHydrationWarning on body prevents false-positive warnings
-          from browser extensions that inject attributes (e.g. password managers) */}
-      <body suppressHydrationWarning className="min-h-full flex flex-col">
-        <AnimatedLayout>{children}</AnimatedLayout>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

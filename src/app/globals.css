@@ -83,6 +83,212 @@ body {
 
 /* Letter card depth without shadow */
 .correspondence-card {
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 -2px #fcf9f2,
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 4px 0 -2px #fcf9f2,
     0 4px 0 -1px rgba(0, 0, 0, 0.1);
+}
+
+@layer components {
+  .site-width {
+    @apply max-w-screen-2xl mx-auto w-full px-6;
+  }
+  .eyebrow {
+    @apply font-label text-[10px] uppercase tracking-[.2em] leading-relaxed;
+  }
+  .section-title {
+    @apply font-headline text-3xl md:text-4xl font-extrabold uppercase tracking-tight leading-tight;
+  }
+  .display-title {
+    @apply font-headline text-6xl md:text-8xl lg:text-9xl font-extrabold italic tracking-tighter leading-none break-words;
+    font-family: var(--font-newsreader-display), serif;
+  }
+  .text-link {
+    @apply inline-flex items-center gap-3 font-label text-xs uppercase tracking-widest border-b-2 border-current pb-1;
+  }
+  .ink-button {
+    @apply inline-flex items-center justify-center gap-3 bg-black text-white px-6 py-3 font-label text-xs uppercase tracking-widest border border-black disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .form-label {
+    @apply block font-label text-xs uppercase tracking-widest;
+  }
+  .public-input {
+    @apply block w-full border-b border-black/40 bg-transparent py-3 font-body text-base normal-case tracking-normal;
+  }
+}
+body {
+  font-family: var(--font-public-sans), sans-serif;
+}
+html {
+  scroll-padding-top: 1rem;
+}
+.editorial-arrow {
+  transition: transform 280ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+a:hover .editorial-arrow,
+a:focus-visible .editorial-arrow {
+  transform: translateX(3px);
+}
+@media (max-width: 767px) {
+  .editorial-arrow {
+    transition-duration: 150ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .editorial-arrow {
+    transition: none;
+    transform: none !important;
+  }
+}
+main,
+section,
+article,
+figure {
+  min-width: 0;
+}
+p,
+h1,
+h2,
+h3,
+a {
+  overflow-wrap: anywhere;
+}
+a,
+button,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+button {
+  cursor: pointer;
+}
+:focus-visible {
+  outline: 3px solid #777;
+  outline-offset: 5px;
+}
+.nav-link {
+  text-underline-offset: 6px;
+}
+.nav-link:hover,
+.nav-link[aria-current="page"] {
+  text-decoration: underline;
+}
+.ink-button,
+.paper-card {
+  transition:
+    background-color 160ms ease,
+    transform 180ms ease;
+}
+.ink-button:hover {
+  background-color: #3b3b3b;
+}
+.paper-card:hover {
+  background-color: #f6f3ec;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ink-button:hover {
+    transform: translateY(-1px);
+  }
+}
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 1rem;
+  transform: translateY(-120%);
+  z-index: 100;
+  background: #000;
+  color: #fff;
+  padding: 1rem;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+html[data-navigated] .paper-enter {
+  animation: paper-mobile 160ms ease-out both;
+}
+@keyframes paper-mobile {
+  from {
+    transform: translateY(3px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@media (min-width: 1024px) {
+  html[data-navigated] .paper-enter {
+    transform-origin: 15% 0;
+    animation: paper-desktop 300ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+@keyframes paper-desktop {
+  from {
+    transform: perspective(1600px) rotateY(-1deg) translateY(5px);
+  }
+  to {
+    transform: perspective(1600px) rotateY(0) translateY(0);
+  }
+}
+.ink-reveal {
+  animation: ink-reveal 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes ink-reveal {
+  from {
+    opacity: 0.65;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@layer components {
+  .editor-shell {
+    @apply max-w-7xl mx-auto px-5 py-8 md:px-10;
+  }
+  .editor-label {
+    @apply flex flex-col gap-2 font-label text-xs tracking-wide;
+  }
+  .editor-label input,
+  .editor-label textarea,
+  .editor-label select {
+    @apply w-full bg-white border border-black/25 px-3 py-3 font-body text-sm tracking-normal;
+  }
+  .editor-fields {
+    @apply grid gap-5;
+  }
+  .editor-list {
+    @apply border-t border-black/30 pt-6 space-y-5 min-w-0;
+  }
+  .editor-list legend {
+    @apply font-headline text-2xl font-bold pr-4;
+  }
+  .editor-item {
+    @apply bg-white/60 border border-black/20 p-5 md:p-6 min-w-0;
+  }
+  .editor-item button {
+    @apply text-xs underline underline-offset-4 disabled:opacity-40;
+  }
+  .editor-outline {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-black/40 text-xs font-label bg-transparent disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .editor-tab {
+    @apply px-3 py-3 text-sm text-left border-l-2 border-transparent;
+  }
+  .editor-tab.active {
+    @apply border-black bg-white font-bold;
+  }
 }
