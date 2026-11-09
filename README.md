@@ -2,7 +2,7 @@
 
 Portfolio Next.js 16 dengan CMS privat, Supabase Auth/Database/Storage, dan deployment Vercel. Halaman publik dirender di server dan di-cache; browser pengunjung tidak memuat SDK Supabase.
 
-Animasi publik membuka lipatan koran satu kali per sesi tab, lalu membalik halaman pada perpindahan rute dan navigasi back/forward. Desktop memakai perspektif 3D (opening 700 ms, page turn 340 ms); mobile memakai gerakan datar 240/160 ms. `prefers-reduced-motion` menonaktifkan keduanya. Lapisan dekoratif hanya sebesar viewport, tidak menghalangi klik, dan dilepas setelah animasi selesai; navigasi tidak menunggu animasi. Pengaturan sesi memakai `sessionStorage`; jika storage diblokir, intro tetap hanya sekali selama layout publik masih terbuka.
+Animasi publik membuka lipatan koran satu kali per sesi tab, lalu membalik halaman pada perpindahan rute dan navigasi back/forward. Desktop memakai perspektif 3D (opening 700 ms, page turn 3 detik); mobile memakai gerakan datar (opening 240 ms, page turn 3 detik). `prefers-reduced-motion` menonaktifkan keduanya. Lapisan dekoratif hanya sebesar viewport, tidak menghalangi klik, dan dilepas setelah animasi selesai; navigasi tidak menunggu animasi. Pengaturan sesi memakai `sessionStorage`; jika storage diblokir, intro tetap hanya sekali selama layout publik masih terbuka.
 
 ## Menjalankan lokal
 

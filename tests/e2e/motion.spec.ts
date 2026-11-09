@@ -1,11 +1,21 @@
 import { expect, test, type Page } from "@playwright/test";
 
 type MotionEvent = { motion: string; name: string };
-type MotionWindow = Window & { paperEvents: MotionEvent[] };
+type MotionWindow = Window & {
+  paperEvents: MotionEvent[];
+  paperCompletions: number[];
+};
 
 async function observeMotion(page: Page) {
   await page.addInitScript(() => {
     (window as unknown as MotionWindow).paperEvents = [];
+    (window as unknown as MotionWindow).paperCompletions = [];
+    document.addEventListener("animationend", (event) => {
+      if (event.animationName.startsWith("newspaper-"))
+        (window as unknown as MotionWindow).paperCompletions.push(
+          event.elapsedTime,
+        );
+    });
     document.addEventListener("animationstart", (event) => {
       if (
         event.target instanceof HTMLElement &&
@@ -86,6 +96,13 @@ test("newspaper opens once, turns on navigation/history, then releases its layer
       .locator(".paper-scene")
       .evaluate((el) => el.getAnimations({ subtree: true }).length),
   ).toBe(0);
+  // The browser must complete the full turn, rather than a cleanup timer
+  // or a shorter lighting animation removing the paper early.
+  expect(
+    await page.evaluate(() =>
+      (window as unknown as MotionWindow).paperCompletions.at(-1),
+    ),
+  ).toBe(3);
   const recorded = await events(page);
   expect(recorded.filter((e) => e.motion === "opening")).toHaveLength(2);
   expect(

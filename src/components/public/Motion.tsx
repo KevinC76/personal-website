@@ -57,6 +57,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     };
     const finish = (event: AnimationEvent) => {
       if (
+        !event.pseudoElement &&
         event.target instanceof HTMLElement &&
         event.target.matches(".paper-opening-right, .paper-turn")
       )
@@ -75,7 +76,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       paper.dataset.motion = motion;
       // Animation events do the normal cleanup. This also releases the layers
       // if a resize, browser interruption, or a CSS override cancels the event.
-      fallback = setTimeout(stop, 1100);
+      fallback = setTimeout(stop, motion === "opening" ? 1100 : 3400);
     }
 
     const observer = new IntersectionObserver(
