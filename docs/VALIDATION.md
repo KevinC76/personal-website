@@ -2,6 +2,12 @@
 
 Produksi: https://kevin-chiputra-newspaper.vercel.app
 
+## Pembaruan animasi koran
+
+Setelah benchmark awal di bawah, ditambahkan opening lipatan koran satu kali per sesi tab serta page turn pada setiap perubahan rute publik, termasuk back/forward. Efek memakai CSS pada lapisan dekoratif sebesar viewport, tanpa library animasi atau duplikasi pohon halaman. Desktop menggunakan 700/340 ms; mobile 240/160 ms tanpa perspektif 3D. Reduced motion menonaktifkan animasi. Lapisan tidak menerima pointer/fokus, dibersihkan setelah selesai, dan dihentikan ketika tab disembunyikan atau preferensi gerak berubah.
+
+Lint, TypeScript, dan production build berhasil. Pengujian browser bertambah menjadi 14 dan berhasil pada desktop/Pixel 7, mencakup intro sekali per sesi, reload, perpindahan rute, history, reduced motion, dan tidak adanya animasi aktif setelah page turn selesai. Frame opening dan page turn juga diperiksa secara visual. Angka Lighthouse di bagian berikut merupakan benchmark peluncuran awal sebelum pembaruan animasi ini.
+
 ## Pemeriksaan aplikasi
 
 - `npm run lint`, `npm run typecheck`, `npm test`, dan production build berhasil.
