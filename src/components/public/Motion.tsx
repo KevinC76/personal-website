@@ -19,6 +19,7 @@ const INTRO_MS = 3600;
 const NavigationContext = createContext<(href: string) => void>(() => {});
 type Scene = HTMLDivElement & { paperWatchdog?: number };
 type Visit = { path: string; introStarted: number | null };
+type Edition = { title: string; headline: string };
 
 // Runs synchronously as HTML is parsed. No CMS strings enter the script.
 // The watchdog releases the overlay even if hydration or chunk loading fails.
@@ -38,6 +39,25 @@ function PaperPrint() {
         <div />
         <div />
       </div>
+    </div>
+  );
+}
+
+// Connected CSS hinges approximate a curved leaf. Each face is a clipped slice
+// of the same decorative print; the accessible page is never duplicated.
+function PaperLeaf({ index = 0 }: { index?: number }) {
+  return (
+    <div
+      className="paper-leaf"
+      style={{ "--segment": index } as React.CSSProperties}
+    >
+      <div className="paper-leaf-face paper-leaf-front">
+        <PaperPrint />
+      </div>
+      <div className="paper-leaf-face paper-leaf-back">
+        <PaperPrint />
+      </div>
+      {index < 3 && <PaperLeaf index={index + 1} />}
     </div>
   );
 }
@@ -71,6 +91,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
   const scope = useRef<HTMLDivElement>(null);
   const scene = useRef<Scene>(null);
   const lastVisit = useRef<Visit | null>(null);
+  const lastEdition = useRef<Edition | null>(null);
   const navigation = useRef<(href: string) => void>(() => {});
   const dismiss = useRef<() => void>(() => {});
   const navigate = useCallback((href: string) => navigation.current(href), []);
@@ -104,12 +125,25 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         .querySelector("[data-newspaper-title]")
         ?.getAttribute("data-newspaper-title") ?? "";
     const headline = root.querySelector("h1")?.textContent ?? "";
-    paper.querySelectorAll(".paper-print-masthead").forEach((el) => {
-      el.textContent = title;
-    });
-    paper.querySelectorAll(".paper-print-headline").forEach((el) => {
-      el.textContent = headline;
-    });
+    const edition = { title, headline };
+    const printEdition = (selector: string, content: Edition) => {
+      paper
+        .querySelectorAll(`${selector} .paper-print-masthead`)
+        .forEach((el) => {
+          el.textContent = content.title;
+        });
+      paper
+        .querySelectorAll(`${selector} .paper-print-headline`)
+        .forEach((el) => {
+          el.textContent = content.headline;
+        });
+    };
+    printEdition(".paper-fallback", edition);
+    printEdition(
+      ".paper-turn",
+      routeChanged && lastEdition.current ? lastEdition.current : edition,
+    );
+    lastEdition.current = edition;
 
     const release = (complete = true) => {
       generation++;
@@ -122,6 +156,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       delete paper.dataset.motion;
       delete paper.dataset.renderer;
       delete paper.dataset.stage;
+      delete paper.dataset.direction;
       delete root.dataset.turning;
       if (complete && lastVisit.current) lastVisit.current.introStarted = null;
       if (paper.contains(document.activeElement))
@@ -159,6 +194,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       if (!publicRoute || reduced.matches || document.hidden || location.hash)
         return;
       void paper.offsetWidth;
+      paper.dataset.direction = direction;
       paper.dataset.motion = direction;
       root.dataset.turning = "true";
       later(() => release(), (mobile ? 650 : 900) + 150);
@@ -175,6 +211,11 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         !PAGE_ORDER.includes(destination.pathname)
       )
         return;
+      printEdition(".paper-turn", edition);
+      paper.dataset.direction =
+        PAGE_ORDER.indexOf(destination.pathname) < PAGE_ORDER.indexOf(path)
+          ? "backward"
+          : "forward";
       paper.dataset.motion = "cover";
       later(() => release(), 1200);
     };
@@ -346,9 +387,9 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
                 <i key={i} style={{ "--i": i } as React.CSSProperties} />
               ))}
             </div>
+            <div className="paper-turn-shadow" />
             <div className="paper-turn">
-              <PaperPrint />
-              <div className="paper-turn-curl" />
+              <PaperLeaf />
             </div>
           </div>
           <button

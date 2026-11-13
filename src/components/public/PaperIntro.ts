@@ -1,17 +1,17 @@
 import {
   AmbientLight,
-  BufferAttribute,
   CanvasTexture,
   DirectionalLight,
   DoubleSide,
   Mesh,
   MeshStandardMaterial,
-  OrthographicCamera,
-  PlaneGeometry,
+  PerspectiveCamera,
+  PCFSoftShadowMap,
   Scene,
   SRGBColorSpace,
   WebGLRenderer,
 } from "three";
+import { createPaperGeometry, paperCrease } from "./PaperGeometry";
 
 type Options = {
   host: HTMLElement;
@@ -117,13 +117,34 @@ function printTexture(title: string, headline: string, mobile: boolean) {
     rule + 35,
     drawText(headline, headlineElement, h * 0.3, w * 0.055) + 25,
   );
+  const words = Array.from(document.querySelectorAll(".newspaper main p"))
+    .map((element) => element.textContent ?? "")
+    .join(" ")
+    .split(/\s+/)
+    .filter(Boolean);
+  let word = 0;
+  ctx.font = `${Math.max(7, w * 0.007)}px Georgia`;
+  const spaceWidth = ctx.measureText(" ").width;
+  const wordWidths = new Map(
+    [...new Set(words)].map((text) => [text, ctx.measureText(text).width]),
+  );
   for (let col = 0; col < 3; col++) {
     const colWidth = (w - margin * 2) / 3;
     const x = margin + col * colWidth;
-    ctx.fillStyle = "#30251b35";
+    ctx.fillStyle = "#30251ba6";
+    ctx.textAlign = "left";
     for (let y = articleTop; y < h - margin; y += Math.max(7, w * 0.009)) {
-      const length = colWidth * (0.65 + random() * 0.25);
-      ctx.fillRect(x, y, length, Math.max(1, w * 0.0015));
+      let line = "";
+      let lineWidth = 0;
+      while (words.length) {
+        const next = words[word % words.length];
+        const nextWidth = wordWidths.get(next)! + (line ? spaceWidth : 0);
+        if (line && lineWidth + nextWidth > colWidth - 24) break;
+        line += `${line ? " " : ""}${next}`;
+        lineWidth += nextWidth;
+        word++;
+      }
+      ctx.fillText(line, x, y, colWidth - 24);
     }
     ctx.fillRect(x + colWidth - 14, articleTop, 1, h - articleTop - margin);
   }
@@ -138,6 +159,26 @@ function printTexture(title: string, headline: string, mobile: boolean) {
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
   return texture;
+}
+
+function paperBump() {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 256;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas is unavailable");
+  const pixels = context.createImageData(256, 256);
+  for (let y = 0; y < 256; y++)
+    for (let x = 0; x < 256; x++) {
+      const value =
+        128 +
+        paperCrease(x / 255, 1 - y / 255) * 70 +
+        Math.sin(x * 73 + y * 127) * 9;
+      const i = (y * 256 + x) * 4;
+      pixels.data[i] = pixels.data[i + 1] = pixels.data[i + 2] = value;
+      pixels.data[i + 3] = 255;
+    }
+  context.putImageData(pixels, 0, 0);
+  return new CanvasTexture(canvas);
 }
 
 /** A single connected sheet with fixed, deterministic morph targets. */
@@ -185,73 +226,54 @@ export function createPaperIntro({
     const scene = new Scene();
     const height = 6;
     const width = (height * innerWidth) / innerHeight;
-    const camera = new OrthographicCamera(
-      -width / 2,
-      width / 2,
-      height / 2,
-      -height / 2,
-      0.1,
-      30,
-    );
-    camera.position.z = 10;
-    const geometry = new PlaneGeometry(
-      width,
-      height,
-      mobile ? 30 : 52,
-      mobile ? 38 : 62,
-    );
+    const camera = new PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 30);
+    camera.position.z = height / (2 * Math.tan((35 * Math.PI) / 360));
+    const geometry = createPaperGeometry(width, height, mobile);
     cleanups.push(() => geometry.dispose());
-    const positions = geometry.attributes.position;
-    const uv = geometry.attributes.uv;
-    const crumpled = new Float32Array(positions.count * 3);
-    const creased = new Float32Array(positions.count * 3);
-    for (let i = 0; i < positions.count; i++) {
-      const u = uv.getX(i),
-        v = uv.getY(i);
-      const fold = Math.sin(u * 27 + v * 13) * Math.cos(v * 26 - u * 9);
-      const ridges = Math.abs(Math.sin(u * 17 - v * 21));
-      const radius = 0.85 + fold * 0.09 + ridges * 0.1;
-      const theta = u * Math.PI * 1.9 + v * 0.35;
-      const phi = (1 - v) * Math.PI * 0.88 + 0.19;
-      crumpled.set(
-        [
-          radius * Math.sin(phi) * Math.sin(theta),
-          radius * Math.cos(phi),
-          radius * Math.sin(phi) * Math.cos(theta),
-        ],
-        i * 3,
-      );
-      creased.set(
-        [
-          positions.getX(i) * 0.78 + fold * 0.06,
-          positions.getY(i) * 0.82 + fold * 0.04,
-          fold * 0.13 + ridges * 0.12 + Math.sin(u * Math.PI * 4) * 0.09,
-        ],
-        i * 3,
-      );
-    }
-    geometry.morphAttributes.position = [
-      new BufferAttribute(crumpled, 3),
-      new BufferAttribute(creased, 3),
-    ];
     const texture = printTexture(title, headline, mobile);
     cleanups.push(() => texture.dispose());
+    const fibers = mobile ? undefined : paperBump();
+    if (fibers) cleanups.push(() => fibers.dispose());
     const material = new MeshStandardMaterial({
       map: texture,
       side: DoubleSide,
+      vertexColors: true,
+      bumpMap: fibers,
+      bumpScale: 0.014,
       roughness: 1,
       metalness: 0,
-      flatShading: true,
+      flatShading: false,
     });
     cleanups.push(() => material.dispose());
     const sheet = new Mesh(geometry, material);
     sheet.frustumCulled = false;
+    sheet.castShadow = !mobile;
+    sheet.receiveShadow = !mobile;
     scene.add(sheet);
-    scene.add(new AmbientLight(0xffffff, 2));
-    const light = new DirectionalLight(0xfff4df, 2.2);
+    const ambient = new AmbientLight(0xfff5e5, mobile ? 0.95 : 0.8);
+    scene.add(ambient);
+    const light = new DirectionalLight(0xfff4df, 3.1);
     light.position.set(-3, 4, 6);
+    // One small shadow map on desktop only; mobile uses directional shading.
+    if (!mobile) {
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = PCFSoftShadowMap;
+      light.castShadow = true;
+      light.shadow.mapSize.set(512, 512);
+      Object.assign(light.shadow.camera, {
+        left: -5,
+        right: 5,
+        top: 5,
+        bottom: -5,
+        near: 0.5,
+        far: 20,
+      });
+      light.shadow.normalBias = 0.035;
+      light.shadow.bias = -0.0004;
+      cleanups.push(() => light.shadow.dispose());
+    }
     scene.add(light);
-    const rim = new DirectionalLight(0xb4b8c7, 0.7);
+    const rim = new DirectionalLight(0xd4dcea, 0.85);
     rim.position.set(4, -1, -2);
     scene.add(rim);
     const lost = (event: Event) => {
@@ -262,17 +284,30 @@ export function createPaperIntro({
     cleanups.push(() => canvas.removeEventListener("webglcontextlost", lost));
     const render = (elapsed: number) => {
       if (disposed) return;
-      const open = ease((elapsed - 500) / 2000);
-      const flatten = ease((elapsed - 2300) / 900);
+      const open = ease((elapsed - 450) / 1450);
+      const spread = ease((elapsed - 1400) / 1100);
+      const flatten = ease((elapsed - 2450) / 750);
       sheet.morphTargetInfluences![0] = 1 - open;
-      sheet.morphTargetInfluences![1] = open * (1 - flatten);
+      sheet.morphTargetInfluences![1] = open * (1 - spread);
+      sheet.morphTargetInfluences![2] = open * spread * (1 - flatten);
+      const lift = ease(elapsed / 450);
+      const settle = Math.sin(spread * Math.PI) * 0.045;
       sheet.rotation.set(
-        (0.22 + Math.sin(elapsed * 0.001) * 0.05) * (1 - flatten),
-        -0.42 * (1 - open),
-        -0.28 * (1 - flatten),
+        (0.18 * (1 - open) - 0.12 * spread + settle) * (1 - flatten),
+        -0.38 * (1 - open) + 0.12 * Math.sin(spread * Math.PI),
+        (-0.22 * (1 - open) + 0.035 * Math.sin(spread * Math.PI)) *
+          (1 - flatten),
       );
-      sheet.position.y =
-        Math.sin(Math.min(elapsed, 2500) * 0.0013) * 0.07 * (1 - flatten);
+      sheet.position.set(
+        0,
+        (-0.15 * (1 - lift) + Math.sin(open * Math.PI) * 0.12) * (1 - flatten),
+        0,
+      );
+      sheet.scale.setScalar(0.9 + 0.1 * lift);
+      // Light broadens as the sheet flattens; the final frame matches the page.
+      ambient.intensity = (mobile ? 0.95 : 0.8) + flatten * 0.75;
+      light.intensity = 3.1 - flatten * 0.9;
+      material.bumpScale = 0.014 * (1 - flatten * 0.8);
       renderer.render(scene, camera);
     };
     render(0); // Compile shaders before swapping the visible fallback.
