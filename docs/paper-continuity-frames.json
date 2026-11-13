@@ -1,0 +1,104 @@
+[
+  {
+    "device": "desktop",
+    "run": 1,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 217,
+      "p95Ms": 16.700000000000273,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 55,
+      "p95Ms": 16.700000000000728,
+      "over34ms": 0
+    }
+  },
+  {
+    "device": "desktop",
+    "run": 2,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 217,
+      "p95Ms": 16.700000000000273,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 55,
+      "p95Ms": 16.800000000000182,
+      "over34ms": 0
+    }
+  },
+  {
+    "device": "desktop",
+    "run": 3,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 217,
+      "p95Ms": 16.700000000000273,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 55,
+      "p95Ms": 16.700000000000728,
+      "over34ms": 0
+    }
+  },
+  {
+    "device": "mobile-4x",
+    "run": 1,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 215,
+      "p95Ms": 16.799999999999727,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 40,
+      "p95Ms": 16.800000000000182,
+      "over34ms": 0
+    }
+  },
+  {
+    "device": "mobile-4x",
+    "run": 2,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 215,
+      "p95Ms": 16.799999999999955,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 40,
+      "p95Ms": 16.800000000000182,
+      "over34ms": 0
+    }
+  },
+  {
+    "device": "mobile-4x",
+    "run": 3,
+    "renderers": [
+      "webgl"
+    ],
+    "intro": {
+      "samples": 215,
+      "p95Ms": 16.799999999999955,
+      "over34ms": 1
+    },
+    "turn": {
+      "samples": 40,
+      "p95Ms": 16.800000000000182,
+      "over34ms": 0
+    }
+  }
+]

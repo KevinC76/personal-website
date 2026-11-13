@@ -403,3 +403,119 @@ test("a turning newspaper keeps the outgoing edition and bends connected faces",
     ),
   ).toBe(0);
 });
+
+test("opening holds a centered crumple until the renderer is chosen", async ({
+  page,
+}) => {
+  let allowScripts: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    allowScripts = resolve;
+  });
+  await page.addInitScript(() => {
+    const state = window as unknown as { openingRenderers: string[] };
+    state.openingRenderers = [];
+    new MutationObserver(() => {
+      const scene = document.querySelector<HTMLElement>("#paper-scene");
+      if (scene?.dataset.motion === "opening" && scene.dataset.renderer)
+        state.openingRenderers.push(scene.dataset.renderer);
+    }).observe(document, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-motion", "data-renderer"],
+    });
+  });
+  await page.route("**/_next/static/chunks/*.js", async (route) => {
+    await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto("/", { waitUntil: "commit" });
+    await expect(scene(page)).toHaveAttribute("data-motion", "preparing");
+    await expect(page.locator(".paper-knot")).toBeVisible();
+    await expect(page.locator(".paper-fallback")).toBeHidden();
+    await page.waitForTimeout(250);
+    await expect(scene(page)).toHaveAttribute("data-motion", "preparing");
+    await expect(page.locator(".paper-knot")).toHaveCSS("transform", "none");
+  } finally {
+    allowScripts();
+  }
+  await expect(scene(page)).toHaveAttribute("data-motion", "opening");
+  await settled(page);
+  const renderers = await page.evaluate(() => [
+    ...new Set(
+      (window as unknown as { openingRenderers: string[] }).openingRenderers,
+    ),
+  ]);
+  expect(renderers).toHaveLength(1);
+  expect(["css", "webgl"]).toContain(renderers[0]);
+});
+
+test("page turns stay pinned to the viewport edge without transparent gutters", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("/");
+  await skip(page);
+  if (!isMobile)
+    await page.addStyleTag({
+      content:
+        "html { overflow-y: scroll; scrollbar-gutter: stable; } ::-webkit-scrollbar { width: 17px; }",
+    });
+  for (const [link, direction] of [
+    ["All Projects", "forward"],
+    ["Home", "backward"],
+  ] as const) {
+    await nav(page, link).click();
+    await expect(scene(page)).toHaveAttribute("data-motion", direction);
+    await page.evaluate(() =>
+      document.getAnimations().forEach((a) => a.pause()),
+    );
+    for (const progress of [0, 0.15, 0.3, 0.45, 0.65]) {
+      const bounds = await page.evaluate(
+        ({ progress, direction }) => {
+          document.getAnimations().forEach((a) => {
+            a.currentTime = Number(a.effect!.getTiming().duration) * progress;
+          });
+          const scene = document.querySelector<HTMLElement>("#paper-scene")!;
+          const rect = scene
+            .querySelector(".paper-turn")!
+            .getBoundingClientRect();
+          const viewport = scene.getBoundingClientRect();
+          const edge = direction === "forward" ? viewport.left : viewport.right;
+          const faces = [...scene.querySelectorAll(".paper-leaf-front")]
+            .map((el) => el.getBoundingClientRect())
+            .filter((r) => r.width > 0);
+          return {
+            anchorDistance: Math.min(
+              Math.abs(rect.left - edge),
+              Math.abs(rect.right - edge),
+            ),
+            coverageLeft: Math.min(...faces.map((r) => r.left)),
+            coverageRight: Math.max(...faces.map((r) => r.right)),
+            viewport: viewport.right,
+            opacity: getComputedStyle(document.querySelector(".paper-enter")!)
+              .opacity,
+            printWidth: parseFloat(
+              getComputedStyle(
+                scene.querySelector(".paper-leaf-front .paper-print")!,
+              ).width,
+            ),
+            width: scene.clientWidth,
+          };
+        },
+        { progress, direction },
+      );
+      expect(bounds.anchorDistance).toBeLessThanOrEqual(2);
+      expect(bounds.opacity).toBe("1");
+      expect(bounds.printWidth).toBeCloseTo(bounds.width + 2, 0);
+      if (progress === 0) {
+        expect(bounds.coverageLeft).toBeLessThanOrEqual(0);
+        expect(bounds.coverageRight).toBeGreaterThanOrEqual(bounds.viewport);
+      }
+    }
+    await page.evaluate(() =>
+      document.getAnimations().forEach((a) => a.play()),
+    );
+    await settled(page);
+  }
+});

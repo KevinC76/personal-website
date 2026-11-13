@@ -70,6 +70,24 @@ export function createPaperGeometry(
     const grain = 0.96 + 0.04 * Math.sin(u * 81 + v * 49) ** 2;
     color.set([grain, grain, grain], i * 3);
   }
+  // Align each stage around the same screen center; corner releases must not
+  // translate the entire sheet sideways during interpolation.
+  for (const target of [gathered, unfurled, creased]) {
+    let minX = Infinity,
+      maxX = -Infinity,
+      minY = Infinity,
+      maxY = -Infinity;
+    for (let i = 0; i < target.length; i += 3) {
+      minX = Math.min(minX, target[i]);
+      maxX = Math.max(maxX, target[i]);
+      minY = Math.min(minY, target[i + 1]);
+      maxY = Math.max(maxY, target[i + 1]);
+    }
+    for (let i = 0; i < target.length; i += 3) {
+      target[i] -= (minX + maxX) / 2;
+      target[i + 1] -= (minY + maxY) / 2;
+    }
+  }
   // Alternate triangle diagonals so the light catches folds in both directions.
   const indices = geometry.index!;
   for (let y = 0; y < rows; y++)

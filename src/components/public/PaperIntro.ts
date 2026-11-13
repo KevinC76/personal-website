@@ -27,9 +27,10 @@ const ease = (value: number) => {
 };
 
 function printTexture(title: string, headline: string, mobile: boolean) {
+  const viewportWidth = document.documentElement.clientWidth;
   const canvas = document.createElement("canvas");
   canvas.width = mobile ? 768 : 1536;
-  canvas.height = Math.round((canvas.width * innerHeight) / innerWidth);
+  canvas.height = Math.round((canvas.width * innerHeight) / viewportWidth);
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Canvas is unavailable");
   const w = canvas.width,
@@ -60,7 +61,7 @@ function printTexture(title: string, headline: string, mobile: boolean) {
   }
   ctx.fillStyle = "#30251b";
   ctx.textAlign = "center";
-  const scale = w / innerWidth;
+  const scale = w / viewportWidth;
   const masthead = document.querySelector<HTMLElement>(".masthead-title");
   const headlineElement = document.querySelector<HTMLElement>(".newspaper h1");
   const drawText = (
@@ -189,6 +190,7 @@ export function createPaperIntro({
   mobile,
   onError,
 }: Options) {
+  const viewportWidth = document.documentElement.clientWidth;
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("webgl2", {
     alpha: true,
@@ -221,12 +223,17 @@ export function createPaperIntro({
     });
     cleanups.push(() => renderer.dispose());
     renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1 : 1.5));
-    renderer.setSize(innerWidth, innerHeight);
+    renderer.setSize(viewportWidth, innerHeight);
     renderer.setClearColor(0x000000, 0);
     const scene = new Scene();
     const height = 6;
-    const width = (height * innerWidth) / innerHeight;
-    const camera = new PerspectiveCamera(35, innerWidth / innerHeight, 0.1, 30);
+    const width = (height * viewportWidth) / innerHeight;
+    const camera = new PerspectiveCamera(
+      35,
+      viewportWidth / innerHeight,
+      0.1,
+      30,
+    );
     camera.position.z = height / (2 * Math.tan((35 * Math.PI) / 360));
     const geometry = createPaperGeometry(width, height, mobile);
     cleanups.push(() => geometry.dispose());
@@ -284,26 +291,17 @@ export function createPaperIntro({
     cleanups.push(() => canvas.removeEventListener("webglcontextlost", lost));
     const render = (elapsed: number) => {
       if (disposed) return;
-      const open = ease((elapsed - 450) / 1450);
+      const open = ease((elapsed - 500) / 1400);
       const spread = ease((elapsed - 1400) / 1100);
       const flatten = ease((elapsed - 2450) / 750);
       sheet.morphTargetInfluences![0] = 1 - open;
       sheet.morphTargetInfluences![1] = open * (1 - spread);
       sheet.morphTargetInfluences![2] = open * spread * (1 - flatten);
-      const lift = ease(elapsed / 450);
-      const settle = Math.sin(spread * Math.PI) * 0.045;
-      sheet.rotation.set(
-        (0.18 * (1 - open) - 0.12 * spread + settle) * (1 - flatten),
-        -0.38 * (1 - open) + 0.12 * Math.sin(spread * Math.PI),
-        (-0.22 * (1 - open) + 0.035 * Math.sin(spread * Math.PI)) *
-          (1 - flatten),
-      );
-      sheet.position.set(
-        0,
-        (-0.15 * (1 - lift) + Math.sin(open * Math.PI) * 0.12) * (1 - flatten),
-        0,
-      );
-      sheet.scale.setScalar(0.9 + 0.1 * lift);
+      // The sheet itself unfolds. Its center, orientation and scale stay fixed
+      // so the opening can never read as a sheet flying across the screen.
+      sheet.rotation.set(0, 0, 0);
+      sheet.position.set(0, 0, 0);
+      sheet.scale.setScalar(1);
       // Light broadens as the sheet flattens; the final frame matches the page.
       ambient.intensity = (mobile ? 0.95 : 0.8) + flatten * 0.75;
       light.intensity = 3.1 - flatten * 0.9;

@@ -301,6 +301,7 @@
 /* The scene is decorative, viewport-bounded, and never blocks the live page. */
 .paper-scene {
   --intro-delay: 0ms;
+  --paper-width: 100vw;
   --turn-duration: 900ms;
   --leaf-count: 4;
   --bend: 1;
@@ -325,6 +326,7 @@
 }
 .paper-intro-backdrop,
 .paper-canvas,
+.paper-knot,
 .paper-fallback,
 .paper-intro-caption,
 .paper-dust,
@@ -337,12 +339,30 @@
   :is(
     .paper-intro-backdrop,
     .paper-canvas,
+    .paper-knot,
     .paper-fallback,
     .paper-intro-caption,
     .paper-dust,
     .paper-skip
   ) {
   display: block;
+}
+.paper-scene[data-motion="preparing"]
+  :is(.paper-intro-backdrop, .paper-knot, .paper-intro-caption, .paper-skip) {
+  display: block;
+  animation: none;
+}
+.paper-knot {
+  position: absolute;
+  inset: 0;
+  background: url("/paper-crumpled.webp") center / auto 100% no-repeat;
+  pointer-events: none;
+}
+.paper-scene[data-motion="opening"] .paper-knot {
+  animation: knot-unfold 3600ms both;
+}
+.paper-scene[data-motion="opening"][data-renderer="webgl"] .paper-knot {
+  animation: knot-to-mesh 160ms both;
 }
 .paper-intro-backdrop {
   position: absolute;
@@ -395,7 +415,7 @@
 }
 .paper-fallback {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   background: #e8d8b7;
   box-shadow: 12px 24px 60px #0006;
   transform-origin: center;
@@ -531,10 +551,10 @@
 }
 .paper-turn {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: calc(100% / var(--leaf-count));
+  top: -2px;
+  bottom: -2px;
+  left: -1px;
+  width: calc((var(--paper-width) + 2px) / var(--leaf-count));
   transform-origin: left center;
   transform-style: preserve-3d;
   will-change: transform;
@@ -552,15 +572,17 @@
 }
 .paper-leaf-face {
   position: absolute;
-  inset: 0 -0.5px;
+  inset: 0 -1px;
   overflow: hidden;
   backface-visibility: hidden;
   background: #e8d8b7;
   outline: 1px solid #9e886740;
 }
 .paper-leaf-face > .paper-print {
-  width: 100vw;
-  transform: translateX(calc(var(--segment) * -100vw / var(--leaf-count)));
+  width: calc(var(--paper-width) + 2px);
+  transform: translateX(
+    calc(var(--segment) * (var(--paper-width) + 2px) / var(--leaf-count) * -1)
+  );
 }
 .paper-leaf-back {
   transform: rotateY(180deg);
@@ -594,7 +616,7 @@
 }
 .paper-scene[data-direction="backward"] .paper-turn {
   left: auto;
-  right: 0;
+  right: -1px;
   transform-origin: right center;
 }
 .paper-scene[data-direction="backward"] .paper-leaf {
@@ -605,7 +627,10 @@
 }
 .paper-scene[data-direction="backward"] .paper-leaf-face > .paper-print {
   transform: translateX(
-    calc((var(--leaf-count) - 1 - var(--segment)) * -100vw / var(--leaf-count))
+    calc(
+      (var(--leaf-count) - 1 - var(--segment)) * (var(--paper-width) + 2px) /
+        var(--leaf-count) * -1
+    )
   );
 }
 .paper-scene[data-motion="cover"] .paper-turn {
@@ -646,9 +671,6 @@
   display: block;
   animation: paper-cast-shadow var(--turn-duration) ease-in-out both;
 }
-.paper-experience[data-turning] .paper-enter {
-  animation: paper-content-arrive var(--turn-duration, 900ms) ease-out both;
-}
 .ink-reveal {
   position: relative;
   animation: ink-unfold 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -669,10 +691,31 @@
   animation: ink-crease 700ms ease-out both;
 }
 
+@keyframes knot-to-mesh {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes knot-unfold {
+  0%,
+  14% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  26%,
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
 @keyframes newspaper-uncrumple {
   0%,
-  13% {
-    transform: scale(0.2, 0.25) rotate(-18deg) rotateY(28deg);
+  14% {
+    opacity: 0;
+    transform: scale(0.18, 0.22);
     clip-path: polygon(
       15% 8%,
       75% 0,
@@ -683,47 +726,33 @@
       0 50%
     );
   }
-  42% {
-    transform: scale(0.48, 0.55) rotate(5deg) rotateY(-12deg);
-    clip-path: polygon(5% 2%, 90% 0, 100% 8%, 98% 91%, 90% 100%, 2% 98%, 0 10%);
-  }
-  70% {
-    transform: scale(0.85, 0.88) rotate(-2deg) rotateY(3deg);
+  26% {
+    opacity: 1;
+    transform: scale(0.4, 0.45);
     clip-path: polygon(
-      0 0,
-      100% 0,
-      100% 10%,
-      100% 100%,
-      90% 100%,
-      0 100%,
-      0 10%
+      10% 6%,
+      80% 0,
+      100% 18%,
+      94% 82%,
+      75% 100%,
+      8% 94%,
+      0 30%
     );
+  }
+  65% {
+    opacity: 1;
+    transform: scale(0.88, 0.88);
+    clip-path: polygon(1% 1%, 97% 0, 100% 2%, 99% 98%, 98% 100%, 1% 99%, 0 2%);
   }
   89% {
-    transform: none;
     opacity: 1;
-    clip-path: polygon(
-      0 0,
-      100% 0,
-      100% 10%,
-      100% 100%,
-      90% 100%,
-      0 100%,
-      0 10%
-    );
+    transform: scale(1);
+    clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
   }
   100% {
-    transform: none;
     opacity: 0;
-    clip-path: polygon(
-      0 0,
-      100% 0,
-      100% 10%,
-      100% 100%,
-      90% 100%,
-      0 100%,
-      0 10%
-    );
+    transform: scale(1);
+    clip-path: polygon(0 0, 100% 0, 100% 0, 100% 100%, 100% 100%, 0 100%, 0 0);
   }
 }
 @keyframes intro-dissolve {
@@ -736,9 +765,7 @@
   }
 }
 @keyframes intro-caption {
-  0% {
-    opacity: 0;
-  }
+  0%,
   12%,
   55% {
     opacity: 1;
@@ -793,7 +820,7 @@
 @keyframes newspaper-cover {
   from {
     opacity: 0;
-    transform: rotateY(calc(var(--bend) * -8deg));
+    transform: none;
   }
   to {
     opacity: 1;
@@ -806,14 +833,14 @@
     opacity: 1;
   }
   30% {
-    transform: translateX(8vw) rotateY(-38deg) rotateZ(-0.6deg);
+    transform: rotateY(-38deg);
   }
   68% {
-    transform: translateX(14vw) rotateY(-112deg) rotateZ(-1.2deg);
+    transform: rotateY(-112deg);
     opacity: 1;
   }
   100% {
-    transform: translateX(-6vw) rotateY(-174deg) rotateZ(-1.5deg);
+    transform: rotateY(-174deg);
     opacity: 0;
   }
 }
@@ -823,14 +850,14 @@
     opacity: 1;
   }
   30% {
-    transform: translateX(-8vw) rotateY(38deg) rotateZ(0.6deg);
+    transform: rotateY(38deg);
   }
   68% {
-    transform: translateX(-14vw) rotateY(112deg) rotateZ(1.2deg);
+    transform: rotateY(112deg);
     opacity: 1;
   }
   100% {
-    transform: translateX(6vw) rotateY(174deg) rotateZ(1.5deg);
+    transform: rotateY(174deg);
     opacity: 0;
   }
 }
@@ -871,14 +898,6 @@
   100% {
     opacity: 0;
     transform: translateX(calc(var(--bend) * -100%)) scaleX(0.3);
-  }
-}
-@keyframes paper-content-arrive {
-  from {
-    opacity: 0.72;
-  }
-  to {
-    opacity: 1;
   }
 }
 @keyframes ink-unfold {
@@ -984,9 +1003,6 @@
   .paper-scene[data-motion="forward"] .paper-turn,
   .paper-scene[data-motion="backward"] .paper-turn {
     animation-duration: 650ms;
-  }
-  .paper-experience[data-turning] .paper-enter {
-    animation-duration: 500ms;
   }
 }
 /* Correspondence is written on paper, with an ink line instead of an input box. */

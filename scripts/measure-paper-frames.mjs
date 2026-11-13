@@ -50,7 +50,10 @@ const output =
         requestAnimationFrame(tick);
       });
       await page.goto(origin);
-      await page.waitForTimeout(3900);
+      await page.waitForFunction(() => {
+        const scene = document.querySelector("#paper-scene");
+        return scene && !scene.dataset.motion;
+      });
       await page
         .getByRole("navigation", { name: "Main navigation", exact: true })
         .getByRole("link", { name: "All Projects", exact: true })
