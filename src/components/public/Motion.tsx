@@ -23,7 +23,7 @@ type Edition = { title: string; headline: string };
 
 // Runs synchronously as HTML is parsed. No CMS strings enter the script.
 // The watchdog releases the overlay even if hydration or chunk loading fails.
-const bootScript = `(()=>{const p=document.getElementById('paper-scene');if(!p)return;try{if(!${JSON.stringify(PAGE_ORDER)}.includes(location.pathname)||location.hash||matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden)return;try{if(sessionStorage.getItem('${OPENED_KEY}'))return;sessionStorage.setItem('${OPENED_KEY}','true')}catch{}p.dataset.started=String(performance.now());p.dataset.motion='opening';p.paperWatchdog=setTimeout(()=>{delete p.dataset.motion;p.dataset.expired='true'},4500)}catch{}})()`;
+const bootScript = `(()=>{const p=document.getElementById('paper-scene');if(!p)return;try{if(!${JSON.stringify(PAGE_ORDER)}.includes(location.pathname)||location.hash||matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden)return;try{if(sessionStorage.getItem('${OPENED_KEY}'))return;sessionStorage.setItem('${OPENED_KEY}','true')}catch{}p.dataset.started=String(performance.now());p.dataset.motion='preparing';p.paperWatchdog=setTimeout(()=>{delete p.dataset.motion;p.dataset.expired='true'},4500)}catch{}})()`;
 
 function PaperPrint() {
   return (
@@ -101,6 +101,9 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     const paper = scene.current;
     if (!root || !paper) return;
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const sizePaper = () =>
+      paper.style.setProperty("--paper-width", `${paper.clientWidth}px`);
+    sizePaper();
     const mobile = matchMedia("(max-width: 767px), (pointer: coarse)").matches;
     const previous = lastVisit.current;
     const routeChanged = previous !== null && previous.path !== path;
@@ -220,74 +223,90 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       later(() => release(), 1200);
     };
 
-    const start = lastVisit.current?.introStarted;
-    if (start != null && !reduced.matches && !document.hidden) {
-      const elapsed = performance.now() - start;
-      if (elapsed >= INTRO_MS) release();
-      else {
-        delete paper.dataset.motion;
-        void paper.offsetWidth;
-        paper.style.setProperty("--intro-delay", `${-elapsed}ms`);
+    if (
+      lastVisit.current?.introStarted != null &&
+      !reduced.matches &&
+      !document.hidden
+    ) {
+      // Hold one centered crumple while choosing a renderer. The unfolding
+      // clock starts only once, after that decision; no mid-animation swap.
+      paper.dataset.motion = "preparing";
+      const run = generation;
+      const deadline = performance.now() + 400;
+      let chosen = false;
+      type Renderer = {
+        render: (elapsed: number) => void;
+        dispose: () => void;
+      };
+      const begin = (renderer?: Renderer) => {
+        if (chosen || !alive || run !== generation) {
+          renderer?.dispose();
+          return;
+        }
+        chosen = true;
+        const start = performance.now();
+        if (lastVisit.current) lastVisit.current.introStarted = start;
+        disposeRenderer = renderer?.dispose;
+        clearTimeout(paper.paperWatchdog);
+        paper.style.setProperty("--intro-delay", "0ms");
+        paper.dataset.renderer = renderer ? "webgl" : "css";
+        paper.dataset.stage = "crumpled";
         paper.dataset.motion = "opening";
-        paper.dataset.renderer = "css";
-        paper.dataset.stage =
-          elapsed < 500 ? "crumpled" : elapsed < 2500 ? "unfolding" : "flat";
         later(() => {
           paper.dataset.stage = "unfolding";
-        }, 500 - elapsed);
+        }, 500);
         later(() => {
           paper.dataset.stage = "flat";
-        }, 2500 - elapsed);
+        }, 2500);
         later(() => {
           paper.dataset.stage = "revealing";
-        }, 3200 - elapsed);
-        later(() => release(), INTRO_MS - elapsed);
-        const run = generation;
-        const deadline = performance.now() + 400;
-        void import("./PaperIntro")
-          .then(({ createPaperIntro }) => {
-            if (!alive || run !== generation || performance.now() > deadline)
-              return;
-            const host = paper.querySelector<HTMLDivElement>(".paper-canvas");
-            if (!host) return;
+        }, 3200);
+        later(() => release(), INTRO_MS);
+        if (renderer) {
+          const tick = () => {
+            if (!alive || run !== generation) return;
             try {
-              const renderer = createPaperIntro({
-                host,
-                title,
-                headline,
-                mobile,
-                onError: () => release(),
-              });
-              if (
-                !alive ||
-                run !== generation ||
-                performance.now() > deadline
-              ) {
-                renderer.dispose();
-                return;
-              }
-              disposeRenderer = renderer.dispose;
-              paper.dataset.renderer = "webgl";
-              const tick = () => {
-                if (!alive || run !== generation) return;
-                try {
-                  renderer.render(
-                    Math.min(INTRO_MS, performance.now() - start),
-                  );
-                  frame = requestAnimationFrame(tick);
-                } catch {
-                  release();
-                }
-              };
-              tick();
+              renderer.render(Math.min(INTRO_MS, performance.now() - start));
+              frame = requestAnimationFrame(tick);
             } catch {
-              /* The CSS intro is a complete fallback. */
+              release();
             }
-          })
-          .catch(() => {
-            /* A missing chunk cannot prevent access to the page. */
-          });
-      }
+          };
+          tick();
+        }
+      };
+      later(() => begin(), 400);
+      void import("./PaperIntro")
+        .then(({ createPaperIntro }) => {
+          if (
+            chosen ||
+            !alive ||
+            run !== generation ||
+            performance.now() > deadline
+          )
+            return;
+          const host = paper.querySelector<HTMLDivElement>(".paper-canvas");
+          if (!host) {
+            begin();
+            return;
+          }
+          try {
+            const renderer = createPaperIntro({
+              host,
+              title,
+              headline,
+              mobile,
+              onError: () => release(),
+            });
+            if (performance.now() > deadline) {
+              renderer.dispose();
+              begin();
+            } else begin(renderer);
+          } catch {
+            begin();
+          }
+        })
+        .catch(() => begin());
     } else if (routeChanged) {
       playTurn(
         PAGE_ORDER.indexOf(path) < PAGE_ORDER.indexOf(previous.path)
@@ -305,7 +324,8 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
         release();
     };
     const interruptIntro = (event: Event) => {
-      if (paper.dataset.motion !== "opening") return;
+      if (!["preparing", "opening"].includes(paper.dataset.motion ?? ""))
+        return;
       if (
         event.target instanceof Element &&
         event.target.closest(".paper-skip")
@@ -325,6 +345,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     };
     const resized = () => {
       if (paper.dataset.motion) release();
+      sizePaper();
     };
     const magic = installPaperMagic(root, reduced);
     const scrollCleanup = installPaperScroll(root, reduced, magic.reveal);
@@ -377,6 +398,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
               <span>✦</span>
               <p>A new edition unfolds</p>
             </div>
+            <div className="paper-knot" />
             <div className="paper-canvas" />
             <div className="paper-fallback">
               <PaperPrint />
