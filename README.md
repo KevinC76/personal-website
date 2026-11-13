@@ -8,6 +8,8 @@ Intro diputar sekali per sesi tab (`portfolio-newspaper-opened-v2`). Tombol **Sk
 
 `PaperLink` mempertahankan perilaku `next/link`: navigasi tidak menunggu animasi, tautan hash/eksternal/buka-tab-baru tetap normal. Pergantian halaman menggunakan lipatan dan bayangan 900 ms di desktop, 650 ms di mobile/pointer sentuh, termasuk back/forward. Navigasi baru membatalkan gerakan sebelumnya; cover dilepas setelah maksimal 1,2 detik bila tujuan belum tersedia. Scroll memakai reveal tinta sekali dan parallax foto maksimal 12 px, dengan observer dan RAF yang hanya dijadwalkan saat diperlukan. Tidak ada loop animasi saat halaman diam. Tema dibatasi pada portfolio dan preview konten, tanpa mengubah panel editor.
 
+Interaksi menambahkan debu emas singkat pada tautan, tombol, foto, dan bagian yang baru terlihat. Maksimal 24 partikel hidup selama 680 ms; semuanya dibersihkan saat navigasi, tab disembunyikan, atau reduced motion diaktifkan. Foto mendapat kilau sekali saat hover. Formulir surat memakai garis tinta untuk fokus keyboard tanpa kotak input, pesawat kertas saat mengirim, dan cap bintang setelah server mengonfirmasi sukses. Efek menghormati reduced motion dan tidak mengubah pengiriman formulir.
+
 ## Menjalankan lokal
 
 ```sh

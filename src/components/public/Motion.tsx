@@ -11,6 +11,7 @@ import {
   type ComponentProps,
 } from "react";
 import { installPaperScroll } from "./PaperScroll";
+import { installPaperMagic } from "./PaperMagic";
 
 const OPENED_KEY = "portfolio-newspaper-opened-v2";
 const PAGE_ORDER = ["/", "/projects", "/about"];
@@ -284,7 +285,8 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     const resized = () => {
       if (paper.dataset.motion) release();
     };
-    const scrollCleanup = installPaperScroll(root, reduced);
+    const magic = installPaperMagic(root, reduced);
+    const scrollCleanup = installPaperScroll(root, reduced, magic.reveal);
     const interrupts = [
       "wheel",
       "touchstart",
@@ -306,6 +308,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       navigation.current = () => {};
       dismiss.current = () => {};
       scrollCleanup();
+      magic.dispose();
       interrupts.forEach((name) =>
         document.removeEventListener(name, interruptIntro),
       );
@@ -320,6 +323,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     <NavigationContext.Provider value={navigate}>
       <div ref={scope} className="paper-experience">
         {children}
+        <div className="magic-dust-layer" aria-hidden="true" inert />
         <div
           id="paper-scene"
           ref={scene}
