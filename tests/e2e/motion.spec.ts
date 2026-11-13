@@ -261,7 +261,10 @@ test("keyboard focus dismisses intro without losing the skip link", async ({
 });
 
 test("failed hydration cannot leave a blocking intro", async ({ page }) => {
-  await page.route("**/*.js", (route) => route.abort());
+  await page.route(
+    (url) => url.pathname.endsWith(".js"),
+    (route) => route.abort(),
+  );
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(scene(page)).toBeHidden({ timeout: 6000 });
@@ -424,10 +427,15 @@ test("opening holds a centered crumple until the renderer is chosen", async ({
       attributeFilter: ["data-motion", "data-renderer"],
     });
   });
-  await page.route("**/_next/static/chunks/*.js", async (route) => {
-    await gate;
-    await route.continue();
-  });
+  // Deployed chunks may use an immutable subdirectory or a query string.
+  await page.route(
+    (url) =>
+      url.pathname.startsWith("/_next/static/") && url.pathname.endsWith(".js"),
+    async (route) => {
+      await gate;
+      await route.continue();
+    },
+  );
   try {
     await page.goto("/", { waitUntil: "commit" });
     await expect(scene(page)).toHaveAttribute("data-motion", "preparing");
