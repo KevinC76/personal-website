@@ -1,5 +1,27 @@
 # Validasi implementasi
 
+## Lipatan realistis dan page turn melengkung — 13 November 2026
+
+Intro memakai satu lembar bertepi terbuka dengan tiga morph target posisi/normal: gumpalan tidak beraturan, lembar cekung dengan sudut tertahan, dan lembar berkerut sebelum rata. Crease normals mempertahankan lipatan tajam dengan bidang yang lebih halus. Kamera perspektif, cetakan teks konten aktif, dan pencahayaan terarah memperjelas bentuk. Desktop menambahkan bump map serat 256 px dan satu shadow map 512 px; mobile tidak memakai keduanya dan menggunakan 26 × 34 segmen dibanding 42 × 54 pada desktop. Semua buffer dihitung sekali sebelum render dan dilepas setelah intro.
+
+Page turn memakai empat bagian kertas yang terhubung (tiga di mobile), sisi depan/belakang, dan bayangan bergerak. Cetakan mempertahankan judul halaman yang ditinggalkan. Durasi tetap 900/650 ms, navigasi tidak ditunda, dan tidak ada WebGL untuk pergantian halaman. Frame gumpalan, setengah terbuka, rata, crossfade, serta page turn pada 15/40/65/85% diperiksa di desktop dan Pixel 7.
+
+Pengukuran menggunakan production server lokal, Chrome, tiga run per perangkat, dan CPU throttling 4× pada mobile. Data mentah disimpan di [tactile-performance.json](tactile-performance.json); cadence frame diukur melalui RAF menggunakan `scripts/measure-paper-frames.mjs`, pemuatan/idle melalui `scripts/measure-motion.mjs`. Ini bukan pengukuran GPU pada ponsel fisik atau Safari. LCP mengukur HTML di bawah dekorasi, bukan durasi intro 3,6 detik. Angka kunjungan ulang dapat berubah karena variasi pengukuran walaupun renderer intro tidak dimuat.
+
+| Pengukuran median | Sebelum → sesudah |
+| --- | ---: |
+| Desktop LCP pertama / ulang | 76 → 100 ms / 48 → 48 ms |
+| Mobile CPU 4× LCP pertama / ulang | 232 → 248 ms / 60 → 60 ms |
+| Desktop long task di atas 50 ms, kunjungan pertama | 0 → 14 ms |
+| Mobile CPU 4× long task di atas 50 ms, kunjungan pertama | 75 → 125 ms |
+| JS encoded pertama / ulang | 282.1 → 284.0 KB / 148.3 → 148.4 KB |
+| Mobile p95 interval RAF saat intro | 16.8 → 16.8 ms |
+| Mobile p95 interval RAF saat page turn | 16.8 → 16.7 ms |
+
+Ketiga run mobile memakai WebGL untuk intro. Tidak ada interval frame >34 ms selama page turn; intro masih memiliki 2–4 interval >34 ms saat pemuatan/persiapan. Biaya persiapan kunjungan pertama bertambah, sementara cadence selama animasi tetap terjaga. Tidak ada long task pada kunjungan ulang; seluruh sampel selesai dengan 0 animasi berjalan. CLS median tetap 0.002 pada kunjungan pertama desktop dan 0 pada sampel lainnya. Pemeriksaan ukuran desktop/mobile tidak menemukan overflow horizontal atau hydration error.
+
+Lint, pemeriksaan format, pemeriksaan tipe, production build, 16 tes unit/database, dan **52 tes browser desktop/mobile lulus**. Tes tambahan memeriksa cetakan edisi sebelumnya, kelengkungan antarbagiannya, jumlah lipatan mobile, arah balik, dan cleanup. Tes existing tetap mencakup skip, reload, back/forward, navigasi cepat, renderer gagal/lambat, storage diblokir, resize, tab tersembunyi, reduced motion, dan JavaScript nonaktif.
+
 ## Interaksi magis dan formulir surat — 13 November 2026
 
 - Fokus input tidak lagi menampilkan kotak; garis tinta dan ornamen bintang mempertahankan penanda fokus keyboard. Screenshot kontak diperiksa pada desktop dan emulasi Pixel 7, termasuk fokus nama, email, dan isi surat.

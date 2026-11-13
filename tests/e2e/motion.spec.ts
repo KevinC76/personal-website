@@ -341,3 +341,65 @@ test("slow navigation releases its cover while the destination loads", async ({
   await settled(page);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });
+
+test("a turning newspaper keeps the outgoing edition and bends connected faces", async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto("/");
+  await skip(page);
+  const outgoing = await page.getByRole("heading", { level: 1 }).textContent();
+  await nav(page, "All Projects").click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await expect(scene(page)).toHaveAttribute("data-motion", "forward");
+  await expect(
+    page.locator(".paper-turn .paper-print-headline").first(),
+  ).toHaveText(outgoing!);
+  await expect(page.locator(".paper-turn")).toBeVisible();
+  const leaf = await page.evaluate(() => {
+    const animations = document
+      .getAnimations()
+      .filter(
+        (a) =>
+          a.effect instanceof KeyframeEffect &&
+          (a.effect.target as Element | null)?.closest("#paper-scene"),
+      );
+    animations.forEach((a) => {
+      a.pause();
+      a.currentTime = Number(a.effect!.getTiming().duration) * 0.4;
+    });
+    const segments = [
+      ...document.querySelectorAll<HTMLElement>(".paper-leaf"),
+    ].filter((el) => getComputedStyle(el).display !== "none");
+    return {
+      count: segments.length,
+      transforms: segments.slice(1).map((el) => getComputedStyle(el).transform),
+      reverse: getComputedStyle(document.querySelector(".paper-leaf-back")!)
+        .transform,
+      overflow: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  expect(leaf.count).toBe(isMobile ? 3 : 4);
+  expect(leaf.transforms.every((value) => value.startsWith("matrix3d"))).toBe(
+    true,
+  );
+  expect(new Set(leaf.transforms).size).toBe(leaf.transforms.length);
+  expect(leaf.reverse).not.toBe("none");
+  expect(leaf.overflow).toBe(false);
+  await page.evaluate(() => document.getAnimations().forEach((a) => a.play()));
+  await settled(page);
+  const projects = await page.getByRole("heading", { level: 1 }).textContent();
+  await nav(page, "Home").click();
+  await expect(scene(page)).toHaveAttribute("data-direction", "backward");
+  await expect(
+    page.locator(".paper-turn .paper-print-headline").first(),
+  ).toHaveText(projects!);
+  await settled(page);
+  expect(
+    await page.evaluate(
+      () =>
+        document.getAnimations().filter((a) => a.playState === "running")
+          .length,
+    ),
+  ).toBe(0);
+});

@@ -301,6 +301,9 @@
 /* The scene is decorative, viewport-bounded, and never blocks the live page. */
 .paper-scene {
   --intro-delay: 0ms;
+  --turn-duration: 900ms;
+  --leaf-count: 4;
+  --bend: 1;
   position: fixed;
   inset: 0;
   z-index: 70;
@@ -308,12 +311,14 @@
   visibility: hidden;
   pointer-events: none;
   contain: layout paint style;
-  perspective: 1800px;
+  perspective: none;
 }
 .paper-scene[data-motion] {
   visibility: visible;
 }
 .paper-visual {
+  perspective: max(1600px, 150vw);
+  transform-style: preserve-3d;
   position: absolute;
   inset: 0;
   pointer-events: none;
@@ -324,6 +329,7 @@
 .paper-intro-caption,
 .paper-dust,
 .paper-turn,
+.paper-turn-shadow,
 .paper-skip {
   display: none;
 }
@@ -357,6 +363,7 @@
   left: 34%;
   top: 65%;
   background: radial-gradient(ellipse, #0008, transparent 70%);
+  animation: paper-ground-shadow 3600ms var(--intro-delay) both;
 }
 .paper-canvas {
   position: absolute;
@@ -524,59 +531,123 @@
 }
 .paper-turn {
   position: absolute;
-  inset: 0;
-  background: #e8d8b7;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(100% / var(--leaf-count));
   transform-origin: left center;
-  backface-visibility: hidden;
-  box-shadow: 18px 0 48px #291c1559;
-  overflow: hidden;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
-.paper-turn::after {
+.paper-leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+}
+.paper-leaf > .paper-leaf {
+  left: 100%;
+  right: auto;
+  width: 100%;
+}
+.paper-leaf-face {
+  position: absolute;
+  inset: 0 -0.5px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: #e8d8b7;
+  outline: 1px solid #9e886740;
+}
+.paper-leaf-face > .paper-print {
+  width: 100vw;
+  transform: translateX(calc(var(--segment) * -100vw / var(--leaf-count)));
+}
+.paper-leaf-back {
+  transform: rotateY(180deg);
+  background: #d9c7a4;
+}
+.paper-leaf-back .paper-print {
+  opacity: 0.5;
+}
+.paper-leaf-face::after {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(
     90deg,
-    #402b1740,
-    transparent 20%,
-    #fff5d980 67%,
-    #61452260
+    #46301d75,
+    #fff7da35 22%,
+    transparent 65%,
+    #45301b50
   );
-  opacity: 0.5;
+  opacity: 0.08;
 }
-.paper-turn-curl {
-  position: absolute;
-  inset: 0 0 0 auto;
-  width: 23%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #3e2a1740 30%,
-    #f9edcf 65%,
-    #a18a65
+.paper-scene[data-direction="backward"] {
+  --bend: -1;
+}
+.paper-scene[data-direction="forward"] .paper-visual {
+  perspective-origin: left center;
+}
+.paper-scene[data-direction="backward"] .paper-visual {
+  perspective-origin: right center;
+}
+.paper-scene[data-direction="backward"] .paper-turn {
+  left: auto;
+  right: 0;
+  transform-origin: right center;
+}
+.paper-scene[data-direction="backward"] .paper-leaf {
+  transform-origin: right center;
+}
+.paper-scene[data-direction="backward"] .paper-leaf > .paper-leaf {
+  left: -100%;
+}
+.paper-scene[data-direction="backward"] .paper-leaf-face > .paper-print {
+  transform: translateX(
+    calc((var(--leaf-count) - 1 - var(--segment)) * -100vw / var(--leaf-count))
   );
-  transform: skewY(-2deg);
-  transform-origin: right;
-  box-shadow: -16px 0 36px #35271320;
 }
 .paper-scene[data-motion="cover"] .paper-turn {
   animation: newspaper-cover 180ms ease-out both;
 }
 .paper-scene[data-motion="forward"] .paper-turn {
-  animation: newspaper-turn-forward 900ms cubic-bezier(0.23, 0.72, 0.22, 1) both;
+  animation: newspaper-turn-forward var(--turn-duration)
+    cubic-bezier(0.3, 0.08, 0.22, 1) both;
 }
 .paper-scene[data-motion="backward"] .paper-turn {
-  transform-origin: right center;
-  animation: newspaper-turn-backward 900ms cubic-bezier(0.23, 0.72, 0.22, 1)
-    both;
+  animation: newspaper-turn-backward var(--turn-duration)
+    cubic-bezier(0.3, 0.08, 0.22, 1) both;
 }
-.paper-scene[data-motion="backward"] .paper-turn-curl {
-  left: 0;
-  right: auto;
-  transform: scaleX(-1);
+.paper-scene:is([data-motion="forward"], [data-motion="backward"])
+  .paper-leaf
+  > .paper-leaf {
+  animation: paper-leaf-bend var(--turn-duration)
+    cubic-bezier(0.3, 0.08, 0.22, 1) both;
+}
+.paper-scene:is([data-motion="forward"], [data-motion="backward"])
+  .paper-leaf-face::after {
+  animation: paper-fold-light var(--turn-duration) ease-in-out both;
+}
+.paper-turn-shadow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 10%,
+    #2d20184d 50%,
+    #2d201826 66%,
+    transparent 88%
+  );
+  pointer-events: none;
+}
+.paper-scene:is([data-motion="forward"], [data-motion="backward"])
+  .paper-turn-shadow {
+  display: block;
+  animation: paper-cast-shadow var(--turn-duration) ease-in-out both;
 }
 .paper-experience[data-turning] .paper-enter {
-  animation: paper-content-arrive 700ms ease-out both;
+  animation: paper-content-arrive var(--turn-duration, 900ms) ease-out both;
 }
 .ink-reveal {
   position: relative;
@@ -703,10 +774,26 @@
     transform: translate(calc((var(--i) - 5) * 8px), -70px) scale(0);
   }
 }
+@keyframes paper-ground-shadow {
+  0%,
+  12% {
+    opacity: 0.5;
+    transform: scale(0.6);
+  }
+  40% {
+    opacity: 0.7;
+    transform: translateY(30px) scale(1.1, 0.7);
+  }
+  75%,
+  100% {
+    opacity: 0;
+    transform: translateY(60px) scale(2, 0.4);
+  }
+}
 @keyframes newspaper-cover {
   from {
     opacity: 0;
-    transform: translateX(8%) rotateY(-12deg);
+    transform: rotateY(calc(var(--bend) * -8deg));
   }
   to {
     opacity: 1;
@@ -715,33 +802,80 @@
 }
 @keyframes newspaper-turn-forward {
   0% {
-    transform: rotateY(0);
+    transform: rotateY(0deg);
     opacity: 1;
   }
-  42% {
-    opacity: 0.95;
+  30% {
+    transform: translateX(8vw) rotateY(-38deg) rotateZ(-0.6deg);
+  }
+  68% {
+    transform: translateX(14vw) rotateY(-112deg) rotateZ(-1.2deg);
+    opacity: 1;
   }
   100% {
-    transform: translateX(-8%) rotateY(-108deg) rotateZ(-2deg);
+    transform: translateX(-6vw) rotateY(-174deg) rotateZ(-1.5deg);
     opacity: 0;
   }
 }
 @keyframes newspaper-turn-backward {
   0% {
-    transform: rotateY(0);
+    transform: rotateY(0deg);
     opacity: 1;
   }
-  42% {
-    opacity: 0.95;
+  30% {
+    transform: translateX(-8vw) rotateY(38deg) rotateZ(0.6deg);
+  }
+  68% {
+    transform: translateX(-14vw) rotateY(112deg) rotateZ(1.2deg);
+    opacity: 1;
   }
   100% {
-    transform: translateX(8%) rotateY(108deg) rotateZ(2deg);
+    transform: translateX(6vw) rotateY(174deg) rotateZ(1.5deg);
     opacity: 0;
+  }
+}
+@keyframes paper-leaf-bend {
+  0% {
+    transform: rotateY(0deg);
+  }
+  30% {
+    transform: rotateY(calc(var(--bend) * (18deg + var(--segment) * 4deg)));
+  }
+  68% {
+    transform: rotateY(calc(var(--bend) * (12deg + var(--segment) * 3deg)));
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+@keyframes paper-fold-light {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+  32% {
+    opacity: 0.6;
+  }
+  68% {
+    opacity: 0.3;
+  }
+}
+@keyframes paper-cast-shadow {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(var(--bend) * 35%)) scaleX(0.7);
+  }
+  35% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(calc(var(--bend) * -100%)) scaleX(0.3);
   }
 }
 @keyframes paper-content-arrive {
   from {
-    opacity: 0.65;
+    opacity: 0.72;
   }
   to {
     opacity: 1;
@@ -837,6 +971,16 @@
   }
 }
 @media (max-width: 767px), (pointer: coarse) {
+  .paper-scene {
+    --turn-duration: 650ms;
+    --leaf-count: 3;
+  }
+  .paper-leaf > .paper-leaf > .paper-leaf > .paper-leaf {
+    display: none;
+  }
+  .paper-visual {
+    perspective: 1100px;
+  }
   .paper-scene[data-motion="forward"] .paper-turn,
   .paper-scene[data-motion="backward"] .paper-turn {
     animation-duration: 650ms;
