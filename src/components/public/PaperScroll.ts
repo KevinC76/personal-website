@@ -1,5 +1,9 @@
 // All work is driven by intersection/scroll events. There is no idle RAF loop.
-export function installPaperScroll(root: HTMLElement, reduced: MediaQueryList) {
+export function installPaperScroll(
+  root: HTMLElement,
+  reduced: MediaQueryList,
+  onReveal?: (element: HTMLElement) => void,
+) {
   const visible = new Set<HTMLElement>();
   const pictures = Array.from(
     root.querySelectorAll<HTMLElement>(".editorial-picture"),
@@ -34,7 +38,10 @@ export function installPaperScroll(root: HTMLElement, reduced: MediaQueryList) {
           if (entry.isIntersecting) visible.add(el);
           else visible.delete(el);
         } else if (entry.isIntersecting) {
-          if (!reduced.matches) el.classList.add("ink-reveal");
+          if (!reduced.matches) {
+            el.classList.add("ink-reveal");
+            onReveal?.(el);
+          }
           observer.unobserve(el);
         }
       });

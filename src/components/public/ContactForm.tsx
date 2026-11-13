@@ -42,7 +42,10 @@ export default function ContactForm({
   }
   return (
     <section id="contact" className="border-t-2 border-black py-12" data-reveal>
-      <div className="correspondence-card mx-auto max-w-4xl bg-white p-6 md:p-10 border border-black">
+      <div
+        className="correspondence-card mx-auto max-w-4xl bg-white p-6 md:p-10 border border-black"
+        data-letter-state={status}
+      >
         <p className="eyebrow mb-5">
           Correspondence ·{" "}
           <a href={`mailto:${content.email}`}>{content.email}</a>
@@ -53,7 +56,10 @@ export default function ContactForm({
         </p>
         <div aria-live="polite">
           {status === "success" && (
-            <div className="py-8">
+            <div className="letter-delivered py-8">
+              <span className="letter-seal" aria-hidden="true">
+                ✦
+              </span>
               <h3 className="font-headline text-3xl italic">
                 {content.success}
               </h3>
@@ -68,10 +74,17 @@ export default function ContactForm({
           )}
         </div>
         {status !== "success" && (
-          <form onSubmit={submit} className="space-y-6">
+          <form
+            onSubmit={submit}
+            className="space-y-6"
+            aria-busy={status === "sending"}
+          >
             <div className="grid gap-6 md:grid-cols-2">
-              <label className="form-label">
-                Your name
+              <label className="form-label letter-field">
+                <span className="letter-label">Your name</span>
+                <span className="letter-quill" aria-hidden="true">
+                  ✧
+                </span>
                 <input
                   name="name"
                   autoComplete="name"
@@ -80,8 +93,11 @@ export default function ContactForm({
                   className="public-input"
                 />
               </label>
-              <label className="form-label">
-                Email address
+              <label className="form-label letter-field">
+                <span className="letter-label">Email address</span>
+                <span className="letter-quill" aria-hidden="true">
+                  ✧
+                </span>
                 <input
                   name="email"
                   type="email"
@@ -92,8 +108,11 @@ export default function ContactForm({
                 />
               </label>
             </div>
-            <label className="form-label">
-              Your letter
+            <label className="form-label letter-field">
+              <span className="letter-label">Your letter</span>
+              <span className="letter-quill" aria-hidden="true">
+                ✧
+              </span>
               <textarea
                 name="message"
                 required
@@ -116,13 +135,24 @@ export default function ContactForm({
             )}
             <button
               disabled={disabled || status === "sending"}
-              className="ink-button"
+              className="ink-button dispatch-button"
             >
               {disabled
                 ? "Preview — sending disabled"
                 : status === "sending"
                   ? "Dispatching…"
-                  : "Send letter →"}
+                  : "Send letter"}
+              <span className="dispatch-glyph" aria-hidden="true">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                >
+                  <path d="m3 5 18-2-2 18-6-8-10-8Z" />
+                  <path d="m13 13 8-10M13 13l-3 6-1-9" />
+                </svg>
+              </span>
             </button>
           </form>
         )}

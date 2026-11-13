@@ -1,8 +1,15 @@
 # Validasi implementasi
 
+## Interaksi magis dan formulir surat — 13 November 2026
+
+- Fokus input tidak lagi menampilkan kotak; garis tinta dan ornamen bintang mempertahankan penanda fokus keyboard. Screenshot kontak diperiksa pada desktop dan emulasi Pixel 7, termasuk fokus nama, email, dan isi surat.
+- Debu emas singkat ditambahkan pada interaksi serta reveal bagian; foto mendapat kilau saat hover. Partikel dibatasi 24, dibersihkan setelah maksimal 680 ms, dan dihentikan saat reduced motion aktif, tab tersembunyi, atau navigasi. Sampel desktop/mobile menunjukkan 0 partikel dan 0 animasi berjalan setelah efek selesai, tanpa overflow horizontal atau error browser.
+- **50 pengujian browser lulus** pada production build lokal, termasuk delapan pemeriksaan baru untuk input tanpa kotak, keyboard, batas dan cleanup partikel, reduced motion, pengiriman sukses, serta kegagalan yang mempertahankan isi surat. API pengiriman dimock; tidak ada email sungguhan dikirim.
+- Lint, pemeriksaan format, pemeriksaan tipe, production build, dan 16 pengujian unit/database lulus. Benchmark pada bagian berikut adalah baseline pembaruan intro; tidak diulang untuk tambahan interaksi ini.
+
 ## Koran magis — 13 November 2026
 
-Diverifikasi pada production build lokal dengan konten published; perubahan ini belum dideploy. Tema sepia, masthead, bingkai foto, edisi bertinta gelap, dan tampilan Home/About/Projects diperiksa pada desktop 1440 × 1000 dan emulasi Pixel 7. Frame WebGL pada tahap gumpalan, lembar berkerut, dan lembar rata diperiksa; judul menggunakan posisi baris halaman sebenarnya. Gambar proyek yang lazy-load diverifikasi setelah digulir ke viewport.
+Diverifikasi pada production build lokal dengan konten published, lalu dideploy melalui PR #4 (merge `157574d`). Tema sepia, masthead, bingkai foto, edisi bertinta gelap, dan tampilan Home/About/Projects diperiksa pada desktop 1440 × 1000 dan emulasi Pixel 7. Frame WebGL pada tahap gumpalan, lembar berkerut, dan lembar rata diperiksa; judul menggunakan posisi baris halaman sebenarnya. Gambar proyek yang lazy-load diverifikasi setelah digulir ke viewport. Deployment Vercel, navigasi tiga halaman, kontak, dan cleanup renderer telah diverifikasi pada produksi.
 
 - Lint, pemeriksaan tipe, pemeriksaan format, production build, serta 16 pengujian unit/database lulus.
 - **42 pengujian browser lulus** pada desktop dan Pixel 7. Termasuk intro sekali per sesi, skip/Escape/scroll/fokus, navigasi cepat, arah dan durasi page turn, history, hash contact, storage diblokir, WebGL tidak tersedia, renderer lambat, context loss, resize, tab tersembunyi, reduced motion yang berubah saat runtime, pemuatan rute lambat, hydration gagal, dan JavaScript nonaktif.
