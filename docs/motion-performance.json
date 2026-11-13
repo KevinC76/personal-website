@@ -1,0 +1,289 @@
+{
+  "date": "2026-11-13",
+  "method": {
+    "origin": "http://localhost:3000",
+    "build": "production, published content",
+    "runs_per_device": 3,
+    "visits": [
+      "fresh browser context",
+      "reload in the same tab"
+    ],
+    "desktop_viewport": [
+      1440,
+      1000
+    ],
+    "mobile_emulation": "Pixel 7, CPU throttling 4x",
+    "network_throttling": false,
+    "observation_ms": 4600,
+    "idle_window_ms": 500,
+    "notes": "Local comparative measurement, not Lighthouse or field CWV. LCP measures underlying HTML, not the 3.6 second visual intro."
+  },
+  "baseline": [
+    {
+      "device": "desktop",
+      "run": 1,
+      "visit": "first",
+      "lcp": 1052,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 3.0040000000000067
+    },
+    {
+      "device": "desktop",
+      "run": 1,
+      "visit": "return",
+      "lcp": 216,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.2689999999999984
+    },
+    {
+      "device": "desktop",
+      "run": 2,
+      "visit": "first",
+      "lcp": 52,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.8620000000000017
+    },
+    {
+      "device": "desktop",
+      "run": 2,
+      "visit": "return",
+      "lcp": 44,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.29299999999999815
+    },
+    {
+      "device": "desktop",
+      "run": 3,
+      "visit": "first",
+      "lcp": 40,
+      "cls": 0.00036627671229986494,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.7139999999999993
+    },
+    {
+      "device": "desktop",
+      "run": 3,
+      "visit": "return",
+      "lcp": 48,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.393000000000001
+    },
+    {
+      "device": "mobile-4x",
+      "run": 1,
+      "visit": "first",
+      "lcp": 76,
+      "cls": 0,
+      "longTasks": 1,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.5940000000000112
+    },
+    {
+      "device": "mobile-4x",
+      "run": 1,
+      "visit": "return",
+      "lcp": 64,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.07000000000000062
+    },
+    {
+      "device": "mobile-4x",
+      "run": 2,
+      "visit": "first",
+      "lcp": 60,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.20000000000000573
+    },
+    {
+      "device": "mobile-4x",
+      "run": 2,
+      "visit": "return",
+      "lcp": 56,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.27499999999999747
+    },
+    {
+      "device": "mobile-4x",
+      "run": 3,
+      "visit": "first",
+      "lcp": 72,
+      "cls": 0,
+      "longTasks": 2,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.44500000000000095
+    },
+    {
+      "device": "mobile-4x",
+      "run": 3,
+      "visit": "return",
+      "lcp": 80,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 144748,
+      "idleTaskMs": 0.09300000000000974
+    }
+  ],
+  "updated": [
+    {
+      "device": "desktop",
+      "run": 1,
+      "visit": "first",
+      "lcp": 112,
+      "cls": 0.002014922681266879,
+      "longTasks": 3,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 1.3070000000000026
+    },
+    {
+      "device": "desktop",
+      "run": 1,
+      "visit": "return",
+      "lcp": 44,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.30200000000000365
+    },
+    {
+      "device": "desktop",
+      "run": 2,
+      "visit": "first",
+      "lcp": 68,
+      "cls": 0.002014922681266879,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 0.43799999999999395
+    },
+    {
+      "device": "desktop",
+      "run": 2,
+      "visit": "return",
+      "lcp": 52,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.281
+    },
+    {
+      "device": "desktop",
+      "run": 3,
+      "visit": "first",
+      "lcp": 76,
+      "cls": 0.0018905884165822725,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 0.5910000000000082
+    },
+    {
+      "device": "desktop",
+      "run": 3,
+      "visit": "return",
+      "lcp": 40,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.28300000000000547
+    },
+    {
+      "device": "mobile-4x",
+      "run": 1,
+      "visit": "first",
+      "lcp": 240,
+      "cls": 0,
+      "longTasks": 72,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 0.062000000000006494
+    },
+    {
+      "device": "mobile-4x",
+      "run": 1,
+      "visit": "return",
+      "lcp": 60,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.10899999999999799
+    },
+    {
+      "device": "mobile-4x",
+      "run": 2,
+      "visit": "first",
+      "lcp": 236,
+      "cls": 0,
+      "longTasks": 71,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 0.06700000000003925
+    },
+    {
+      "device": "mobile-4x",
+      "run": 2,
+      "visit": "return",
+      "lcp": 60,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.10899999999999799
+    },
+    {
+      "device": "mobile-4x",
+      "run": 3,
+      "visit": "first",
+      "lcp": 248,
+      "cls": 0,
+      "longTasks": 79,
+      "animations": 0,
+      "jsBytes": 280998,
+      "idleTaskMs": 0.10300000000007525
+    },
+    {
+      "device": "mobile-4x",
+      "run": 3,
+      "visit": "return",
+      "lcp": 92,
+      "cls": 0,
+      "longTasks": 0,
+      "animations": 0,
+      "jsBytes": 147190,
+      "idleTaskMs": 0.07300000000000362
+    }
+  ]
+}

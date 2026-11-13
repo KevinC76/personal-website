@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { PaperLink as Link } from "./Motion";
 import type {
   PortfolioContent,
   MediaAsset,
@@ -16,6 +16,37 @@ type Props = {
   previewSources?: Record<string, string>;
   revision?: number;
 };
+function PrinterCompass() {
+  return (
+    <svg
+      className="printer-compass"
+      viewBox="0 0 100 100"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="50" cy="50" r="37" stroke="currentColor" strokeWidth=".7" />
+      <circle
+        cx="50"
+        cy="50"
+        r="29"
+        stroke="currentColor"
+        strokeWidth=".7"
+        strokeDasharray="1 4"
+      />
+      <path
+        d="M50 3 57 41 84 16 59 44 97 50 59 56 84 84 56 59 50 97 44 59 16 84 41 56 3 50 41 44 16 16 44 41Z"
+        stroke="currentColor"
+        fill="currentColor"
+        fillOpacity=".06"
+      />
+      <path
+        d="m50 21 5 24 24 5-24 5-5 24-5-24-24-5 24-5Z"
+        fill="currentColor"
+      />
+      <circle cx="50" cy="50" r="4" fill="var(--paper, #e8d8b7)" />
+    </svg>
+  );
+}
 function imageUrl(asset: MediaAsset) {
   return asset.path.startsWith("/")
     ? asset.path
@@ -40,7 +71,7 @@ function Picture({
   if (!asset) return <div className="aspect-video bg-surface-container-high" />;
   return (
     <figure
-      className={`relative overflow-hidden bg-surface-container-high ${portrait ? "aspect-[4/3] grayscale" : "aspect-video"}`}
+      className={`editorial-picture relative overflow-hidden bg-surface-container-high ${portrait ? "aspect-[4/3] grayscale" : "aspect-video"}`}
     >
       <EditorialImage
         key={asset.path}
@@ -76,22 +107,27 @@ function Masthead({
 }) {
   return (
     <header
-      className="site-width pt-6 border-b-[3px] border-black"
+      className="newspaper-masthead site-width pt-6"
       data-newspaper-title={content.brand.name}
     >
-      <div className="flex items-center justify-between gap-6 mb-5">
-        <span className="eyebrow hidden xl:block">{content.brand.edition}</span>
+      <div className="masthead-meta eyebrow">
+        <span>{content.brand.edition}</span>
+        <span className="masthead-motto">An independent chronicle</span>
+        <span>{content.brand.price}</span>
+      </div>
+      <div className="masthead-lockup">
+        <PrinterCompass />
         <Link
           href="/"
-          className="font-headline uppercase font-extrabold tracking-tighter text-2xl md:text-4xl text-center mx-auto border-b-4 border-black pb-1"
+          className="masthead-title font-headline uppercase font-extrabold text-center"
         >
           {content.brand.name}
         </Link>
-        <span className="eyebrow hidden xl:block">{content.brand.price}</span>
+        <PrinterCompass />
       </div>
       <nav
         aria-label="Main navigation"
-        className="flex justify-center flex-wrap gap-6 py-3"
+        className="masthead-nav flex justify-center flex-wrap gap-6 py-3"
       >
         {content.brand.navigation.map((l, i) => (
           <Link
@@ -114,7 +150,8 @@ function Masthead({
 }
 function Footer({ content }: { content: PortfolioContent }) {
   return (
-    <footer className="site-width py-12 mt-10 border-t border-black/20 text-center space-y-6">
+    <footer className="newspaper-footer site-width py-12 mt-10 text-center space-y-6">
+      <PrinterCompass />
       <p className="font-headline text-xl italic">
         “{content.brand.footerQuote}”
       </p>
@@ -226,13 +263,13 @@ function Home({ content: c, previewSources }: Omit<Props, "page">) {
       <div className="site-width">
         <section
           id="hero"
-          className="grid lg:grid-cols-2 gap-10 lg:gap-14 py-10 md:py-14 border-b-4 border-black"
+          className="front-page grid lg:grid-cols-2 gap-10 lg:gap-14 py-10 md:py-14 border-b-4 border-black"
         >
           <div className="lg:pr-12 lg:border-r border-black/20">
-            <p className="eyebrow inline-block bg-black text-white px-3 py-2 mb-6">
+            <p className="edition-ribbon eyebrow inline-block bg-black text-white px-3 py-2 mb-6">
               {p.issue}
             </p>
-            <h1 className="font-headline italic tracking-tighter text-6xl md:text-8xl leading-[.95] mb-6 break-words">
+            <h1 className="front-headline font-headline italic tracking-tighter text-6xl md:text-8xl leading-[.95] mb-6 break-words">
               {p.name}.
             </h1>
             <p className="leading-relaxed text-lg text-black/75">{p.intro}</p>
@@ -273,7 +310,11 @@ function Home({ content: c, previewSources }: Omit<Props, "page">) {
               </Link>
             </div>
             {p.articles.map((a, i) => (
-              <article key={i} className="border-b border-black/15 pb-8">
+              <article
+                key={i}
+                className="editorial-brief border-b border-black/15 pb-8"
+                data-reveal
+              >
                 <p className="eyebrow underline underline-offset-4 mb-3">
                   {a.label}
                 </p>
@@ -315,7 +356,7 @@ function Home({ content: c, previewSources }: Omit<Props, "page">) {
           </div>
         </section>
       </div>
-      <section id="projects" className="bg-black text-[#e2e2e2] py-14">
+      <section id="projects" className="ink-edition text-[#e2e2e2] py-14">
         <div className="site-width">
           <p className="eyebrow mb-3">{c.labels.projectsEyebrow}</p>
           <h2 className="display-title">{c.labels.projectsTitle}</h2>
@@ -349,7 +390,7 @@ function About({ content: c, previewSources }: Omit<Props, "page">) {
   const a = c.about;
   return (
     <>
-      <section className="bg-black text-[#e2e2e2] py-14">
+      <section className="ink-edition text-[#e2e2e2] py-14">
         <div className="site-width">
           <p className="eyebrow mb-4">{a.eyebrow}</p>
           <div className="grid lg:grid-cols-3 gap-8 items-end">
@@ -443,7 +484,7 @@ function About({ content: c, previewSources }: Omit<Props, "page">) {
 }
 function Projects({ content: c, previewSources }: Omit<Props, "page">) {
   return (
-    <section className="bg-black text-[#e2e2e2] py-14">
+    <section className="ink-edition text-[#e2e2e2] py-14">
       <div className="site-width">
         <h1 className="display-title">{c.labels.projectsTitle}</h1>
         <p className="max-w-xl my-8 leading-relaxed">{c.labels.archiveIntro}</p>
@@ -476,12 +517,12 @@ export default function Portfolio({
   revision,
 }: Props) {
   return (
-    <>
+    <div className="newspaper">
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
       <Masthead content={content} page={page} />
-      <main id="main-content" data-content-revision={revision}>
+      <main id="main-content" tabIndex={-1} data-content-revision={revision}>
         {page === "home" ? (
           <Home content={content} previewSources={previewSources} />
         ) : page === "about" ? (
@@ -491,6 +532,6 @@ export default function Portfolio({
         )}
       </main>
       <Footer content={content} />
-    </>
+    </div>
   );
 }

@@ -2,7 +2,11 @@
 
 Portfolio Next.js 16 dengan CMS privat, Supabase Auth/Database/Storage, dan deployment Vercel. Halaman publik dirender di server dan di-cache; browser pengunjung tidak memuat SDK Supabase.
 
-Animasi publik membuka lipatan koran satu kali per sesi tab, lalu membalik halaman pada perpindahan rute dan navigasi back/forward. Desktop memakai perspektif 3D (opening 700 ms, page turn 3 detik); mobile memakai gerakan datar (opening 240 ms, page turn 3 detik). `prefers-reduced-motion` menonaktifkan keduanya. Lapisan dekoratif hanya sebesar viewport, tidak menghalangi klik, dan dilepas setelah animasi selesai; navigasi tidak menunggu animasi. Pengaturan sesi memakai `sessionStorage`; jika storage diblokir, intro tetap hanya sekali selama layout publik masih terbuka.
+Tema publik memakai kertas sepia bertekstur, masthead teatrikal, ornamen kompas, dan edisi proyek bertinta gelap. Intro 3,6 detik mengubah gumpalan kertas 3D menjadi lembar koran dan menyatu dengan konten HTML. Three.js dimuat dinamis hanya saat intro diperlukan; mesh memakai dua morph target deterministik, tekstur cetak dari konten aktif, serta resolusi lebih rendah di mobile. Jika renderer belum siap dalam 400 ms atau WebGL 2 tidak tersedia, intro lipatan CSS melanjutkan urutan yang sama. Renderer, texture, geometry, dan loop RAF dilepas sesudah intro atau saat dibatalkan.
+
+Intro diputar sekali per sesi tab (`portfolio-newspaper-opened-v2`). Tombol **Skip intro**, Escape, scroll, klik, dan fokus pada konten langsung melewatinya. Jika storage diblokir, layout persisten tetap membatasi intro sekali selama kunjungan. Pemeriksaan sebelum hydration mencegah kilatan halaman; watchdog 4,5 detik melepaskan dekorasi bila JavaScript aplikasi gagal. Tanpa JavaScript atau dengan `prefers-reduced-motion`, konten langsung dapat diakses.
+
+`PaperLink` mempertahankan perilaku `next/link`: navigasi tidak menunggu animasi, tautan hash/eksternal/buka-tab-baru tetap normal. Pergantian halaman menggunakan lipatan dan bayangan 900 ms di desktop, 650 ms di mobile/pointer sentuh, termasuk back/forward. Navigasi baru membatalkan gerakan sebelumnya; cover dilepas setelah maksimal 1,2 detik bila tujuan belum tersedia. Scroll memakai reveal tinta sekali dan parallax foto maksimal 12 px, dengan observer dan RAF yang hanya dijadwalkan saat diperlukan. Tidak ada loop animasi saat halaman diam. Tema dibatasi pada portfolio dan preview konten, tanpa mengubah panel editor.
 
 ## Menjalankan lokal
 

@@ -1,4 +1,39 @@
-# Validasi implementasi — 9 November 2026
+# Validasi implementasi
+
+## Koran magis — 13 November 2026
+
+Diverifikasi pada production build lokal dengan konten published; perubahan ini belum dideploy. Tema sepia, masthead, bingkai foto, edisi bertinta gelap, dan tampilan Home/About/Projects diperiksa pada desktop 1440 × 1000 dan emulasi Pixel 7. Frame WebGL pada tahap gumpalan, lembar berkerut, dan lembar rata diperiksa; judul menggunakan posisi baris halaman sebenarnya. Gambar proyek yang lazy-load diverifikasi setelah digulir ke viewport.
+
+- Lint, pemeriksaan tipe, pemeriksaan format, production build, serta 16 pengujian unit/database lulus.
+- **42 pengujian browser lulus** pada desktop dan Pixel 7. Termasuk intro sekali per sesi, skip/Escape/scroll/fokus, navigasi cepat, arah dan durasi page turn, history, hash contact, storage diblokir, WebGL tidak tersedia, renderer lambat, context loss, resize, tab tersembunyi, reduced motion yang berubah saat runtime, pemuatan rute lambat, hydration gagal, dan JavaScript nonaktif.
+- Pemeriksaan existing untuk metadata, proteksi admin/Server Action, fallback gambar, dan validasi kontak tetap lulus. Tidak ada email yang dikirim atau konten CMS yang diubah. Pengujian login pemilik/preview privat tidak diulang; preview menggunakan komponen portfolio yang sama.
+- Seluruh sampel menunjukkan **0 animasi aktif setelah selesai**. Resource GPU dan canvas dilepas; scroll menjadwalkan RAF hanya saat diperlukan. Ketiga halaman tidak mengalami overflow horizontal pada ukuran yang diperiksa. Pengujian mobile berupa emulasi Chromium, bukan perangkat fisik atau Safari.
+
+### Perbandingan performa lokal
+
+Median tiga run per perangkat, context baru untuk kunjungan pertama dan reload dalam tab sama untuk kunjungan ulang. Kedua versi memakai production server lokal, Chrome yang sama, tanpa pembatasan jaringan; mobile menggunakan CPU throttling 4×. Pengujian browser/build lain tidak dijalankan bersamaan. Angka ini bukan skor Lighthouse dan tidak dapat dibandingkan langsung dengan pengukuran Vercel pada peluncuran awal di bawah.
+
+| Perangkat / kunjungan | LCP sebelum → sesudah | CLS sebelum → sesudah | Waktu long task di atas 50 ms | JS encoded sebelum → sesudah |
+| --- | ---: | ---: | ---: | ---: |
+| Desktop, pertama | 52 → 76 ms | 0.000 → 0.002 | 0 → 0 ms | 144.7 → 281.0 KB |
+| Desktop, ulang | 48 → 44 ms | 0.000 → 0.000 | 0 → 0 ms | 144.7 → 147.2 KB |
+| Mobile CPU 4×, pertama | 72 → 240 ms | 0.000 → 0.000 | 1 → 72 ms | 144.7 → 281.0 KB |
+| Mobile CPU 4×, ulang | 64 → 60 ms | 0.000 → 0.000 | 0 → 0 ms | 144.7 → 147.2 KB |
+
+Modul intro Three.js beserta renderer menambah sekitar 133,8 KB encoded hanya pada kunjungan pertama. Kunjungan ulang menambah sekitar 2,4 KB dibanding baseline. Beban tambahan pertama terlihat pada long task di emulasi CPU 4×; animasi memiliki batas kesiapan renderer 400 ms dan fallback CSS. LCP di atas menghitung HTML di bawah dekorasi, **bukan waktu pembukaan visual**: intro tetap berlangsung 3,6 detik kecuali dilewati. Attribution layout-shift mengidentifikasi pergeseran font awal pada headline, label, statistik, dan lebar tombol skip; animasi memakai transform/opacity pada lapisan fixed dan tidak mengubah alokasi layout konten.
+
+Data per run disimpan di [motion-performance.json](motion-performance.json). Untuk mengulang, jalankan production server terlebih dahulu, kemudian:
+
+```sh
+CHROME_PATH='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' \
+  node scripts/measure-motion.mjs artifacts/magic-paper/measurement.json
+```
+
+Hilangkan `CHROME_PATH` jika menggunakan Chromium bawaan Playwright. Jangan menjalankan benchmark bersamaan dengan build atau pengujian lain.
+
+## Arsip validasi — 9 November 2026
+
+Bagian berikut mencatat peluncuran dan animasi sebelum pembaruan koran magis. Hasil produksi serta skor Lighthouse historis tidak mewakili perubahan lokal terbaru.
 
 Produksi: https://kevin-chiputra-newspaper.vercel.app
 
